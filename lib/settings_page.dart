@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'config.dart';
 
-/// Settings page for configuring the restricted IP address.
+/// Settings page for configuring the restricted domain.
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
 
@@ -11,22 +11,19 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   final _formKey = GlobalKey<FormState>();
-  late TextEditingController _ipController;
-  late TextEditingController _portController;
+  late TextEditingController _domainController;
   bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _ipController = TextEditingController(text: AppConfig.ipAddress);
-    _portController = TextEditingController(text: AppConfig.port.toString());
+    _domainController = TextEditingController(text: AppConfig.domain);
     _isLoading = false;
   }
 
   @override
   void dispose() {
-    _ipController.dispose();
-    _portController.dispose();
+    _domainController.dispose();
     super.dispose();
   }
 
@@ -38,8 +35,7 @@ class _SettingsPageState extends State<SettingsPage> {
     setState(() => _isLoading = true);
 
     try {
-      await AppConfig.saveIpAddress(_ipController.text.trim());
-      await AppConfig.savePort(int.parse(_portController.text.trim()));
+      await AppConfig.saveDomain(_domainController.text.trim());
       
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -85,51 +81,26 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
             const SizedBox(height: 8),
             const Text(
-              'The WebView will only connect to the IP address configured below.',
+              'The WebView will only connect to the domain configured below.',
               style: TextStyle(color: Colors.grey),
             ),
             const SizedBox(height: 24),
             
-            // IP Address field
+            // Domain field
             TextFormField(
-              controller: _ipController,
+              controller: _domainController,
               decoration: const InputDecoration(
-                labelText: 'IP Address',
-                hintText: '10.0.0.1',
+                labelText: 'Domain',
+                hintText: 'www.doubao.com',
                 prefixIcon: Icon(Icons.dns),
                 border: OutlineInputBorder(),
               ),
               validator: (value) {
                 if (value == null || value.trim().isEmpty) {
-                  return 'IP address is required';
+                  return 'Domain is required';
                 }
-                if (!AppConfig.isValidIpAddress(value.trim())) {
-                  return 'Please enter a valid IPv4 address';
-                }
-                return null;
-              },
-              enabled: !_isLoading,
-            ),
-            
-            const SizedBox(height: 16),
-            
-            // Port field
-            TextFormField(
-              controller: _portController,
-              decoration: const InputDecoration(
-                labelText: 'Port',
-                hintText: '80',
-                prefixIcon: Icon(Icons.numbers),
-                border: OutlineInputBorder(),
-              ),
-              keyboardType: TextInputType.number,
-              validator: (value) {
-                if (value == null || value.trim().isEmpty) {
-                  return 'Port is required';
-                }
-                final port = int.tryParse(value.trim());
-                if (port == null || port < 1 || port > 65535) {
-                  return 'Port must be between 1 and 65535';
+                if (!AppConfig.isValidDomain(value.trim())) {
+                  return 'Please enter a valid domain (e.g., www.doubao.com)';
                 }
                 return null;
               },

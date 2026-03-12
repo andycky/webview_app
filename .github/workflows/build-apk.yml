@@ -8,16 +8,24 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: ghcr.io/flutter/flutter:3.24.0
-    
     steps:
       - uses: actions/checkout@v3
       
-      - name: Build APK
-        run: flutter build apk --release
+      - uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
       
-      - name: Upload APK
-        uses: actions/upload-artifact@v3
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: 'stable'
+          cache: true
+      
+      - name: Build APK
+        run: flutter build apk --release --no-tree-shake-icons
+      
+      - uses: actions/upload-artifact@v3
         with:
           name: app-release
           path: build/app/outputs/flutter-apk/app-release.apk

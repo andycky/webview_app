@@ -8,7 +8,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    container: ghcr.io/nikita-lipatov/flutter:3.24.0
+    container: ghcr.io/flutter/flutter:3.24.0
     
     steps:
       - uses: actions/checkout@v3

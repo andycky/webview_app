@@ -1,5 +1,5 @@
 name: restricted_webview
-description: A Flutter WebView app restricted to a single configurable IP address.
+description: A Flutter WebView app restricted to a single configurable domain.
 publish_to: 'none'
 version: 1.0.0+1
 
@@ -10,12 +10,12 @@ dependencies:
   flutter:
     sdk: flutter
   webview_flutter: ^4.8.0
-  shared_preferences: ^.2.2
+  shared_preferences: ^2.2.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^.3.0.1
+  flutter_lints: ^3.0.1
 
 flutter:
   uses-material-design: true

@@ -2,65 +2,46 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 /// Configuration manager for the restricted WebView app.
 /// 
-/// The default IP address is 10.0.0.1 but can be changed by the user.
+/// The default domain is www.doubao.com but can be changed by the user.
 class AppConfig {
-  static const String _defaultIp = '10.0.0.1';
-  static const String _ipKey = 'restricted_ip';
-  static const int _defaultPort = 80;
+  static const String _defaultDomain = 'www.doubao.com';
+  static const String _domainKey = 'restricted_domain';
 
-  static String _ipAddress = _defaultIp;
-  static int _port = _defaultPort;
+  static String _domain = _defaultDomain;
 
-  /// Get the current configured IP address
-  static String get ipAddress => _ipAddress;
+  /// Get the current configured domain
+  static String get domain => _domain;
 
-  /// Get the current configured port
-  static int get port => _port;
-
-  /// Get the full URL (http://ip:port)
-  static String get fullUrl => 'http://$_ipAddress:$_port';
+  /// Get the full URL (https://domain)
+  static String get fullUrl => 'https://$_domain';
 
   /// Load configuration from persistent storage
   static Future<void> loadConfig() async {
     final prefs = await SharedPreferences.getInstance();
-    _ipAddress = prefs.getString(_ipKey) ?? _defaultIp;
-    _port = prefs.getInt('restricted_port') ?? _defaultPort;
+    _domain = prefs.getString(_domainKey) ?? _defaultDomain;
   }
 
-  /// Save a new IP address to persistent storage
-  static Future<void> saveIpAddress(String ip) async {
+  /// Save a new domain to persistent storage
+  static Future<void> saveDomain(String domain) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_ipKey, ip);
-    _ipAddress = ip;
+    await prefs.setString(_domainKey, domain);
+    _domain = domain;
   }
 
-  /// Save a new port to persistent storage
-  static Future<void> savePort(int port) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('restricted_port', port);
-    _port = port;
-  }
-
-  /// Validate if an IP address format is correct
-  static bool isValidIpAddress(String ip) {
-    // Simple IPv4 validation
-    final ipRegex = RegExp(
-      r'^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}'
-      r'(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$'
+  /// Validate if a domain format is correct
+  static bool isValidDomain(String domain) {
+    // Simple domain validation
+    final domainRegex = RegExp(
+      r'^[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?)*$'
     );
-    return ipRegex.hasMatch(ip);
+    return domainRegex.hasMatch(domain);
   }
 
-  /// Check if a URL is allowed (matches the configured IP)
+  /// Check if a URL is allowed (matches the configured domain)
   static bool isUrlAllowed(String url) {
     try {
       final uri = Uri.parse(url);
-      if (uri.host == _ipAddress) {
-        return true;
-      }
-      // Also allow localhost/127.0.0.1 for development
-      if (_ipAddress == '10.0.0.1' && 
-          (uri.host == 'localhost' || uri.host == '127.0.0.1')) {
+      if (uri.host == _domain || uri.host.endsWith('.' + _domain)) {
         return true;
       }
       return false;

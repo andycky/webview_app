@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import 'config.dart';
 
-/// WebView page that only allows navigation to the configured IP address.
+/// WebView page that only allows navigation to the configured domain.
 class RestrictedWebViewPage extends StatefulWidget {
   const RestrictedWebViewPage({super.key});
 
@@ -69,7 +69,7 @@ class _RestrictedWebViewPageState extends State<RestrictedWebViewPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppConfig.ipAddress),
+        title: Text(AppConfig.domain),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: [
           IconButton(

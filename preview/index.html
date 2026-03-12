@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restricted WebView - Preview</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .phone-frame {
+            width: 375px;
+            height: 812px;
+            background: #1a1a2e;
+            border-radius: 40px;
+            padding: 12px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.3);
+            position: relative;
+        }
+
+        .phone-notch {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 30px;
+            background: #1a1a2e;
+            border-radius: 0 0 20px 20px;
+            z-index: 10;
+        }
+
+        .screen {
+            width: 100%;
+            height: 100%;
+            background: #ffffff;
+            border-radius: 30px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .status-bar {
+            height: 44px;
+            background: #2196F3;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+            color: white;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .app-bar {
+            height: 56px;
+            background: #1976D2;
+            display: flex;
+            align-items: center;
+            padding: 0 16px;
+            color: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .app-bar-title {
+            flex: 1;
+            font-size: 20px;
+            font-weight: 500;
+        }
+
+        .app-bar-actions {
+            display: flex;
+            gap: 16px;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            color: white;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .icon-btn:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        .webview-container {
+            flex: 1;
+            position: relative;
+            background: #f5f5f5;
+        }
+
+        .webview-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: white;
+        }
+
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 5;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e0e0e0;
+            border-top-color: #2196F3;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: white;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+            z-index: 5;
+        }
+
+        .error-icon {
+            font-size: 64px;
+            color: #f44336;
+            margin-bottom: 16px;
+        }
+
+        .error-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .error-message {
+            color: #757575;
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .retry-btn {
+            background: #2196F3;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .retry-btn:hover {
+            background: #1976D2;
+        }
+
+        .blocked-toast {
+            position: absolute;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: #333;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            opacity: 0;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            z-index: 100;
+        }
+
+        .blocked-toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .fab {
+            position: absolute;
+            bottom: 16px;
+            right: 16px;
+            width: 56px;
+            height: 56px;
+            background: #2196F3;
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(33,150,243,0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .fab:hover {
+            background: #1976D2;
+            transform: scale(1.05);
+        }
+
+        /* Settings Modal */
+        .modal-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 340px;
+            padding: 24px;
+            animation: modalSlide 0.3s ease;
+        }
+
+        @keyframes modalSlide {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .modal-subtitle {
+            color: #757575;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #2196F3;
+        }
+
+        .form-input.error {
+            border-color: #f44336;
+        }
+
+        .error-text {
+            color: #f44336;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-secondary {
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .btn-primary {
+            background: #2196F3;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1976D2;
+        }
+
+        .info-card {
+            background: #E3F2FD;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+
+        .info-card-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            color: #1565C0;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .info-card-text {
+            font-size: 12px;
+            color: #0D47A1;
+            line-height: 1.5;
+        }
+
+        .demo-links {
+            padding: 16px;
+            background: #fafafa;
+            border-top: 1px solid #eee;
+        }
+
+        .demo-links-title {
+            font-size: 12px;
+            color: #757575;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+        }
+
+        .demo-link {
+            display: block;
+            padding: 8px 12px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            text-decoration: none;
+            color: #333;
+            font-size: 13px;
+            margin-bottom: 8px;
+            transition: all 0.2s;
+        }
+
+        .demo-link:hover {
+            border-color: #2196F3;
+            color: #2196F3;
+        }
+
+        .demo-link.blocked {
+            color: #f44336;
+            border-color: #ffcdd2;
+            background: #ffebee;
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+        <div class="phone-notch"></div>
+        <div class="screen">
+            <!-- Status Bar -->
+            <div class="status-bar">
+                <span id="carrier">Carrier</span>
+                <span id="clock">12:00</span>
+                <span>🔋</span>
+            </div>
+
+            <!-- App Bar -->
+            <div class="app-bar">
+                <div class="app-bar-title" id="ip-display">10.0.0.1</div>
+                <div class="app-bar-actions">
+                    <button class="icon-btn" onclick="reloadPage()" title="Refresh">
+                        🔄
+                    </button>
+                </div>
+            </div>
+
+            <!-- WebView Container -->
+            <div class="webview-container">
+                <div class="loading-overlay" id="loading">
+                    <div class="spinner"></div>
+                    <p style="margin-top: 16px; color: #757575;">Loading...</p>
+                </div>
+
+                <div class="error-screen" id="error-screen">
+                    <div class="error-icon">⚠️</div>
+                    <div class="error-title">Connection Error</div>
+                    <div class="error-message" id="error-message">Unable to connect to server</div>
+                    <button class="retry-btn" onclick="reloadPage()">
+                        🔄 Retry
+                    </button>
+                </div>
+
+                <iframe 
+                    class="webview-frame" 
+                    id="webview"
+                    sandbox="allow-scripts allow-same-origin"
+                ></iframe>
+
+                <div class="blocked-toast" id="blocked-toast">
+                    🚫 Navigation blocked - URL not allowed
+                </div>
+
+                <!-- Demo Links Section -->
+                <div class="demo-links">
+                    <div class="demo-links-title">Try These Links</div>
+                    <a href="#" class="demo-link" onclick="navigateTo('allowed'); return false;">
+                        ✅ Allowed: Same IP (10.0.0.1)
+                    </a>
+                    <a href="#" class="demo-link blocked" onclick="navigateTo('blocked'); return false;">
+                        🚫 Blocked: google.com
+                    </a>
+                    <a href="#" class="demo-link blocked" onclick="navigateTo('external'); return false;">
+                        🚫 Blocked: example.com
+                    </a>
+                </div>
+
+                <!-- Settings FAB -->
+                <button class="fab" onclick="openSettings()" title="Settings">
+                    ⚙️
+                </button>
+            </div>
+        </div>
+
+        <!-- Settings Modal -->
+        <div class="modal-overlay" id="settings-modal">
+            <div class="modal">
+                <div class="modal-header">Settings</div>
+                <div class="modal-subtitle">Configure the allowed IP address</div>
+
+                <form id="settings-form" onsubmit="saveSettings(event)">
+                    <div class="form-group">
+                        <label class="form-label">IP Address</label>
+                        <input 
+                            type="text" 
+                            class="form-input" 
+                            id="ip-input" 
+                            placeholder="10.0.0.1"
+                            value="10.0.0.1"
+                        >
+                        <div class="error-text" id="ip-error"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Port</label>
+                        <input 
+                            type="number" 
+                            class="form-input" 
+                            id="port-input" 
+                            placeholder="80"
+                            value="80"
+                            min="1"
+                            max="65535"
+                        >
+                        <div class="error-text" id="port-error"></div>
+                    </div>
+
+                    <div class="info-card">
+                        <div class="info-card-title">
+                            🔒 Security Note
+                        </div>
+                        <div class="info-card-text">
+                            This app will block all navigation to URLs outside the configured IP address, including links, redirects, and JavaScript navigation.
+                        </div>
+                    </div>
+
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeSettings()">
+                            Cancel
+                        </button>
+                        <button type="submit" class="btn btn-primary">
+                            Save Settings
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Configuration
+        let config = {
+            ip: localStorage.getItem('restricted_ip') || '10.0.0.1',
+            port: localStorage.getItem('restricted_port') || '80'
+        };
+
+        // Initialize
+        function init() {
+            updateDisplay();
+            updateClock();
+            loadPage();
+            setInterval(updateClock, 1000);
+        }
+
+        function updateDisplay() {
+            document.getElementById('ip-display').textContent = config.ip;
+            document.getElementById('ip-input').value = config.ip;
+            document.getElementById('port-input').value = config.port;
+        }
+
+        function updateClock() {
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            document.getElementById('clock').textContent = `${hours}:${minutes}`;
+        }
+
+        function isValidIP(ip) {
+            const regex = /^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+            return regex.test(ip);
+        }
+
+        function isUrlAllowed(url) {
+            try {
+                const parsed = new URL(url);
+                if (parsed.hostname === config.ip) {
+                    return true;
+                }
+                // Allow localhost for demo
+                if (config.ip === '10.0.0.1' && 
+                    (parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1')) {
+                    return true;
+                }
+                return false;
+            } catch (e) {
+                return false;
+            }
+        }
+
+        function loadPage() {
+            const iframe = document.getElementById('webview');
+            const loading = document.getElementById('loading');
+            const errorScreen = document.getElementById('error-screen');
+
+            loading.style.display = 'flex';
+            errorScreen.style.display = 'none';
+
+            // For demo purposes, show a mock page since we can't actually connect to 10.0.0.1
+            const mockContent = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <style>
+                        body {
+                            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                            padding: 20px;
+                            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                            color: white;
+                            min-height: 100%;
+                        }
+                        h1 { margin-bottom: 10px; }
+                        p { opacity: 0.9; }
+                        .card {
+                            background: rgba(255,255,255,0.1);
+                            border-radius: 12px;
+                            padding: 20px;
+                            margin-top: 20px;
+                            backdrop-filter: blur(10px);
+                        }
+                        .status {
+                            display: inline-block;
+                            background: #4CAF50;
+                            padding: 4px 12px;
+                            border-radius: 20px;
+                            font-size: 12px;
+                            margin-top: 10px;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <h1>🌐 Welcome</h1>
+                    <p>Connected to: <strong>http://${config.ip}:${config.port}</strong></p>
+                    <div class="card">
+                        <div>✅ Connection Successful</div>
+                        <div class="status">Secure & Restricted</div>
+                        <p style="margin-top: 15px; font-size: 13px; opacity: 0.8;">
+                            This WebView is restricted to only connect to the configured IP address. 
+                            All other navigation attempts will be blocked.
+                        </p>
+                    </div>
+                </body>
+                </html>
+            `;
+
+            // Simulate loading delay
+            setTimeout(() => {
+                iframe.srcdoc = mockContent;
+                loading.style.display = 'none';
+            }, 1000);
+        }
+
+        function reloadPage() {
+            loadPage();
+        }
+
+        function navigateTo(type) {
+            const iframe = document.getElementById('webview');
+            const toast = document.getElementById('blocked-toast');
+
+            if (type === 'allowed') {
+                // Simulate allowed navigation
+                iframe.srcdoc = `
+                    <html><body style="font-family: sans-serif; padding: 20px; background: #E3F2FD;">
+                        <h2>✅ Allowed Page</h2>
+                        <p>This page is on the allowed IP: ${config.ip}</p>
+                        <a href="#" onclick="window.parent.navigateTo('blocked')">Try navigating to blocked site</a>
+                    </body></html>
+                `;
+            } else {
+                // Block navigation
+                showToast();
+            }
+        }
+
+        function showToast() {
+            const toast = document.getElementById('blocked-toast');
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+
+        function openSettings() {
+            document.getElementById('settings-modal').classList.add('show');
+        }
+
+        function closeSettings() {
+            document.getElementById('settings-modal').classList.remove('show');
+            document.getElementById('ip-error').textContent = '';
+            document.getElementById('port-error').textContent = '';
+        }
+
+        function saveSettings(event) {
+            event.preventDefault();
+
+            const ip = document.getElementById('ip-input').value.trim();
+            const port = document.getElementById('port-input').value.trim();
+            let valid = true;
+
+            // Validate IP
+            if (!ip) {
+                document.getElementById('ip-error').textContent = 'IP address is required';
+                valid = false;
+            } else if (!isValidIP(ip)) {
+                document.getElementById('ip-error').textContent = 'Please enter a valid IPv4 address';
+                valid = false;
+            } else {
+                document.getElementById('ip-error').textContent = '';
+            }
+
+            // Validate Port
+            if (!port) {
+                document.getElementById('port-error').textContent = 'Port is required';
+                valid = false;
+            } else {
+                const portNum = parseInt(port);
+                if (portNum < 1 || portNum > 65535) {
+                    document.getElementById('port-error').textContent = 'Port must be between 1 and 65535';
+                    valid = false;
+                } else {
+                    document.getElementById('port-error').textContent = '';
+                }
+            }
+
+            if (valid) {
+                // Save to localStorage
+                localStorage.setItem('restricted_ip', ip);
+                localStorage.setItem('restricted_port', port);
+                config.ip = ip;
+                config.port = port;
+
+                updateDisplay();
+                closeSettings();
+                reloadPage();
+
+                // Show success message
+                alert('Settings saved! WebView will reload with new configuration.');
+            }
+        }
+
+        // Close modal on outside click
+        document.getElementById('settings-modal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeSettings();
+            }
+        });
+
+        // Start
+        init();
+    </script>
+</body>
+</html>

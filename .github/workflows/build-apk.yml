@@ -18,21 +18,14 @@ jobs:
         with:
           flutter-version: '3.24.0'
           channel: 'stable'
-          cache: true
       
       - name: Get packages
         run: flutter pub get
       
-      - name: Build APK
-        run: |
-          cd android
-          ./gradlew assembleRelease
-        continue-on-error: true
-      
-      - name: Build with Flutter
-        run: flutter build apk --release --verbose
+      - name: Build APK via Gradle
+        run: cd android && ./gradlew assembleRelease
       
       - uses: actions/upload-artifact@v4
         with:
           name: app-release
-          path: build/app/outputs/flutter-apk/app-release.apk
+          path: android/app/build/outputs/apk/release/app-release.apk

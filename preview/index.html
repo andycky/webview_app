@@ -580,63 +580,26 @@
             loading.style.display = 'flex';
             errorScreen.style.display = 'none';
 
-            // For demo purposes, show a mock page for doubao.com
-            const mockContent = `
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <style>
-                        body {
-                            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-                            padding: 20px;
-                            background: linear-gradient(135deg, #0066FF 0%, #00C6FF 100%);
-                            color: white;
-                            min-height: 100%;
-                        }
-                        h1 { margin-bottom: 10px; }
-                        p { opacity: 0.9; }
-                        .card {
-                            background: rgba(255,255,255,0.15);
-                            border-radius: 12px;
-                            padding: 20px;
-                            margin-top: 20px;
-                            backdrop-filter: blur(10px);
-                        }
-                        .status {
-                            display: inline-block;
-                            background: #4CAF50;
-                            padding: 4px 12px;
-                            border-radius: 20px;
-                            font-size: 12px;
-                            margin-top: 10px;
-                        }
-                        .logo {
-                            font-size: 48px;
-                            margin-bottom: 10px;
-                        }
-                    </style>
-                </head>
-                <body>
-                    <div class="logo">🤖</div>
-                    <h1>豆包 Doubao</h1>
-                    <p>Connected to: <strong>https://${config.domain}</strong></p>
-                    <div class="card">
-                        <div>✅ Connection Successful</div>
-                        <div class="status">Secure & Restricted</div>
-                        <p style="margin-top: 15px; font-size: 13px; opacity: 0.8;">
-                            This WebView is restricted to only connect to the configured domain. 
-                            All other navigation attempts will be blocked.
-                        </p>
-                    </div>
-                </body>
-                </html>
-            `;
-
-            // Simulate loading delay
-            setTimeout(() => {
-                iframe.srcdoc = mockContent;
+            // Load actual doubao.com content
+            iframe.src = `https://${config.domain}`;
+            
+            iframe.onload = function() {
                 loading.style.display = 'none';
-            }, 1000);
+            };
+            
+            iframe.onerror = function() {
+                loading.style.display = 'none';
+                errorScreen.style.display = 'flex';
+                document.getElementById('error-message').textContent = 
+                    'Unable to load ' + config.domain + '. This may be due to cross-origin restrictions.';
+            };
+
+            // Timeout for loading
+            setTimeout(() => {
+                if (loading.style.display !== 'none') {
+                    loading.style.display = 'none';
+                }
+            }, 10000);
         }
 
         function reloadPage() {

@@ -470,7 +470,7 @@
                 <div class="demo-links">
                     <div class="demo-links-title">Try These Links</div>
                     <a href="#" class="demo-link" onclick="navigateTo('allowed'); return false;">
-                        ✅ Allowed: Same IP (10.0.0.1)
+                        ✅ Allowed: Same domain (www.doubao.com)
                     </a>
                     <a href="#" class="demo-link blocked" onclick="navigateTo('blocked'); return false;">
                         🚫 Blocked: google.com
@@ -491,33 +491,19 @@
         <div class="modal-overlay" id="settings-modal">
             <div class="modal">
                 <div class="modal-header">Settings</div>
-                <div class="modal-subtitle">Configure the allowed IP address</div>
+                <div class="modal-subtitle">Configure the allowed domain</div>
 
                 <form id="settings-form" onsubmit="saveSettings(event)">
                     <div class="form-group">
-                        <label class="form-label">IP Address</label>
+                        <label class="form-label">Domain</label>
                         <input 
                             type="text" 
                             class="form-input" 
                             id="ip-input" 
-                            placeholder="10.0.0.1"
-                            value="10.0.0.1"
+                            placeholder="www.doubao.com"
+                            value="www.doubao.com"
                         >
                         <div class="error-text" id="ip-error"></div>
-                    </div>
-
-                    <div class="form-group">
-                        <label class="form-label">Port</label>
-                        <input 
-                            type="number" 
-                            class="form-input" 
-                            id="port-input" 
-                            placeholder="80"
-                            value="80"
-                            min="1"
-                            max="65535"
-                        >
-                        <div class="error-text" id="port-error"></div>
                     </div>
 
                     <div class="info-card">
@@ -525,7 +511,7 @@
                             🔒 Security Note
                         </div>
                         <div class="info-card-text">
-                            This app will block all navigation to URLs outside the configured IP address, including links, redirects, and JavaScript navigation.
+                            This app will block all navigation to URLs outside the configured domain, including links, redirects, and JavaScript navigation.
                         </div>
                     </div>
 
@@ -545,8 +531,8 @@
     <script>
         // Configuration
         let config = {
-            ip: localStorage.getItem('restricted_ip') || '10.0.0.1',
-            port: localStorage.getItem('restricted_port') || '80'
+            domain: localStorage.getItem('restricted_domain') || 'www.doubao.com',
+            useHttps: true
         };
 
         // Initialize
@@ -558,9 +544,8 @@
         }
 
         function updateDisplay() {
-            document.getElementById('ip-display').textContent = config.ip;
-            document.getElementById('ip-input').value = config.ip;
-            document.getElementById('port-input').value = config.port;
+            document.getElementById('ip-display').textContent = config.domain;
+            document.getElementById('ip-input').value = config.domain;
         }
 
         function updateClock() {
@@ -570,20 +555,15 @@
             document.getElementById('clock').textContent = `${hours}:${minutes}`;
         }
 
-        function isValidIP(ip) {
-            const regex = /^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
-            return regex.test(ip);
+        function isValidDomain(domain) {
+            const regex = /^[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9\-]{0,61}[a-zA-Z0-9])?)*$/;
+            return regex.test(domain);
         }
 
         function isUrlAllowed(url) {
             try {
                 const parsed = new URL(url);
-                if (parsed.hostname === config.ip) {
-                    return true;
-                }
-                // Allow localhost for demo
-                if (config.ip === '10.0.0.1' && 
-                    (parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1')) {
+                if (parsed.hostname === config.domain || parsed.hostname.endsWith('.' + config.domain)) {
                     return true;
                 }
                 return false;
@@ -600,7 +580,7 @@
             loading.style.display = 'flex';
             errorScreen.style.display = 'none';
 
-            // For demo purposes, show a mock page since we can't actually connect to 10.0.0.1
+            // For demo purposes, show a mock page for doubao.com
             const mockContent = `
                 <!DOCTYPE html>
                 <html>
@@ -609,14 +589,14 @@
                         body {
                             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
                             padding: 20px;
-                            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                            background: linear-gradient(135deg, #0066FF 0%, #00C6FF 100%);
                             color: white;
                             min-height: 100%;
                         }
                         h1 { margin-bottom: 10px; }
                         p { opacity: 0.9; }
                         .card {
-                            background: rgba(255,255,255,0.1);
+                            background: rgba(255,255,255,0.15);
                             border-radius: 12px;
                             padding: 20px;
                             margin-top: 20px;
@@ -630,16 +610,21 @@
                             font-size: 12px;
                             margin-top: 10px;
                         }
+                        .logo {
+                            font-size: 48px;
+                            margin-bottom: 10px;
+                        }
                     </style>
                 </head>
                 <body>
-                    <h1>🌐 Welcome</h1>
-                    <p>Connected to: <strong>http://${config.ip}:${config.port}</strong></p>
+                    <div class="logo">🤖</div>
+                    <h1>豆包 Doubao</h1>
+                    <p>Connected to: <strong>https://${config.domain}</strong></p>
                     <div class="card">
                         <div>✅ Connection Successful</div>
                         <div class="status">Secure & Restricted</div>
                         <p style="margin-top: 15px; font-size: 13px; opacity: 0.8;">
-                            This WebView is restricted to only connect to the configured IP address. 
+                            This WebView is restricted to only connect to the configured domain. 
                             All other navigation attempts will be blocked.
                         </p>
                     </div>
@@ -667,7 +652,7 @@
                 iframe.srcdoc = `
                     <html><body style="font-family: sans-serif; padding: 20px; background: #E3F2FD;">
                         <h2>✅ Allowed Page</h2>
-                        <p>This page is on the allowed IP: ${config.ip}</p>
+                        <p>This page is on the allowed domain: ${config.domain}</p>
                         <a href="#" onclick="window.parent.navigateTo('blocked')">Try navigating to blocked site</a>
                     </body></html>
                 `;
@@ -698,41 +683,24 @@
         function saveSettings(event) {
             event.preventDefault();
 
-            const ip = document.getElementById('ip-input').value.trim();
-            const port = document.getElementById('port-input').value.trim();
+            const domain = document.getElementById('ip-input').value.trim();
             let valid = true;
 
-            // Validate IP
-            if (!ip) {
-                document.getElementById('ip-error').textContent = 'IP address is required';
+            // Validate Domain
+            if (!domain) {
+                document.getElementById('ip-error').textContent = 'Domain is required';
                 valid = false;
-            } else if (!isValidIP(ip)) {
-                document.getElementById('ip-error').textContent = 'Please enter a valid IPv4 address';
+            } else if (!isValidDomain(domain)) {
+                document.getElementById('ip-error').textContent = 'Please enter a valid domain (e.g., www.doubao.com)';
                 valid = false;
             } else {
                 document.getElementById('ip-error').textContent = '';
             }
 
-            // Validate Port
-            if (!port) {
-                document.getElementById('port-error').textContent = 'Port is required';
-                valid = false;
-            } else {
-                const portNum = parseInt(port);
-                if (portNum < 1 || portNum > 65535) {
-                    document.getElementById('port-error').textContent = 'Port must be between 1 and 65535';
-                    valid = false;
-                } else {
-                    document.getElementById('port-error').textContent = '';
-                }
-            }
-
             if (valid) {
                 // Save to localStorage
-                localStorage.setItem('restricted_ip', ip);
-                localStorage.setItem('restricted_port', port);
-                config.ip = ip;
-                config.port = port;
+                localStorage.setItem('restricted_domain', domain);
+                config.domain = domain;
 
                 updateDisplay();
                 closeSettings();

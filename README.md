@@ -1,197 +1,158 @@
-# Doubao WebView App - README
+# Doubao WebView App
 
-## 📱 Project Overview
+A Flutter WebView application that wraps Doubao.com with support for multiple environments (SIT, UAT, PROD).
 
-A Flutter WebView wrapper app that provides a native app experience for accessing Doubao.com.
+## Features
 
-**Features:**
-- WebView-based browser for Doubao.com
-- Environment-based URL configuration (SIT/UAT/PROD)
-- Cross-platform (iOS & Android)
-- Native app feel with proper navigation
+- 🌐 WebView integration using `webview_flutter` package
+- 🔄 Multi-environment support (SIT, UAT, PROD)
+- 📱 Cross-platform (iOS, Android, Web)
+- ⚡ Loading indicators with progress
+- ❌ Error handling with retry functionality
+- 🎨 Material Design 3 UI
+- 🌙 Dark mode support
+- 🔒 Secure network configuration
 
----
+## Environment Configuration
 
-## 🚀 Quick Start
+The app supports three environments configurable in `lib/config/environment_config.dart`:
+
+| Environment | Base URL |
+|-------------|----------|
+| SIT | https://sit.doubao.com |
+| UAT | https://uat.doubao.com |
+| PROD | https://www.doubao.com |
+
+### Changing Environment
+
+To switch environments, modify the `currentEnvironment` in `lib/config/environment_config.dart`:
+
+```dart
+static const Environment currentEnvironment = Environment.prod; // Change to .sit or .uat
+```
+
+## Project Structure
+
+```
+lib/
+├── config/
+│   ├── config.dart              # Configuration exports
+│   └── environment_config.dart  # Environment settings
+├── screens/
+│   ├── screens.dart             # Screen exports
+│   └── webview_screen.dart      # Main WebView screen
+├── widgets/
+│   ├── widgets.dart             # Widget exports
+│   ├── loading_indicator.dart   # Loading UI
+│   └── error_widget.dart        # Error handling UI
+└── main.dart                    # App entry point
+```
+
+## Getting Started
 
 ### Prerequisites
 
-- Flutter SDK 3.x or later
-- Android Studio / VS Code with Flutter extensions
-- Android SDK (for Android builds)
-- Xcode (for iOS builds, macOS only)
+- Flutter SDK 3.0.0 or higher
+- Dart SDK 3.0.0 or higher
+- Android Studio / Xcode (for mobile development)
 
 ### Installation
 
-1. **Clone the repository**
+1. Clone the repository:
 ```bash
-git clone <repository-url>
-cd doubao_webview_app
+git clone https://github.com/andycky/webview_app.git
+cd webview_app
 ```
 
-2. **Install dependencies**
+2. Install dependencies:
 ```bash
 flutter pub get
 ```
 
-3. **Configure environment**
-
-Create `.env` file in project root:
-```env
-DOUBAO_URL=https://www.doubao.com/
-```
-
-Or use build flavors for different environments:
-- `.env.sit`
-- `.env.uat`
-- `.env.prod`
-
-4. **Run the app**
+3. Run the app:
 ```bash
-# Run with default environment
 flutter run
-
-# Run with specific flavor
-flutter run --flavor sit -t lib/main_sit.dart
-flutter run --flavor uat -t lib/main_uat.dart
-flutter run --flavor prod -t lib/main_prod.dart
 ```
 
----
+### Building for Production
 
-## 📁 Project Structure
-
-```
-doubao_webview_app/
-├── lib/
-│   ├── main.dart              # App entry point
-│   ├── config/
-│   │   ├── app_config.dart    # App configuration
-│   │   └── environment.dart   # Environment variables
-│   ├── screens/
-│   │   └── webview_screen.dart # Main WebView screen
-│   ├── widgets/
-│   │   ├── loading_indicator.dart
-│   │   └── error_widget.dart
-│   └── utils/
-│       └── url_handler.dart   # URL handling logic
-├── android/                    # Android-specific files
-├── ios/                        # iOS-specific files
-├── .env.sit                    # SIT environment config
-├── .env.uat                    # UAT environment config
-├── .env.prod                   # PROD environment config
-├── pubspec.yaml               # Dependencies
-└── README.md                  # This file
-```
-
----
-
-## 🏗️ Build Flavors
-
-| Flavor | Environment | URL | Use Case |
-|--------|-------------|-----|----------|
-| `sit` | SIT | Configured in .env.sit | Development & Integration Testing |
-| `uat` | UAT | Configured in .env.uat | User Acceptance Testing |
-| `prod` | PROD | Configured in .env.prod | Production Release |
-
-### Building for Release
-
+#### Android
 ```bash
-# Android APK
-flutter build apk --flavor prod -t lib/main_prod.dart
-
-# Android App Bundle
-flutter build appbundle --flavor prod -t lib/main_prod.dart
-
-# iOS
-flutter build ios --flavor prod -t lib/main_prod.dart
+flutter build apk --release
+# or for app bundle
+flutter build appbundle --release
 ```
 
----
-
-## 🧪 Testing
-
+#### iOS
 ```bash
-# Run all tests
-flutter test
-
-# Run with coverage
-flutter test --coverage
+flutter build ios --release
 ```
 
----
+#### Web
+```bash
+flutter build web --release
+```
 
-## 📝 Key Features
-
-### WebView Configuration
-- Full-screen WebView experience
-- JavaScript enabled
-- Cookie support
-- Cache management
-
-### Navigation
-- Back/Forward navigation
-- Pull-to-refresh
-- Loading indicators
-- Error handling
-
-### Security
-- HTTPS only
-- External link handling
-- Permission management
-
----
-
-## 🔧 Configuration
+## Configuration
 
 ### Android Permissions
 
-`android/app/src/main/AndroidManifest.xml`:
+The app requires internet access, which is configured in `android/app/src/main/AndroidManifest.xml`:
+
 ```xml
 <uses-permission android:name="android.permission.INTERNET"/>
 <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 ```
 
-### iOS Configuration
+### iOS App Transport Security
 
-`ios/Runner/Info.plist`:
+iOS configuration allows HTTPS connections in `ios/Runner/Info.plist`:
+
 ```xml
 <key>NSAppTransportSecurity</key>
 <dict>
-    <key>NSAllowsArbitraryLoads</key>
-    <false/>
+    <key>NSAllowsArbitraryLoadsInWebContent</key>
+    <true/>
 </dict>
 ```
 
----
+## Error Handling
 
-## 🐛 Troubleshooting
+The app includes comprehensive error handling:
 
-### Common Issues
+- Network errors display a user-friendly error message
+- Retry functionality allows users to reload failed pages
+- Loading indicators show page load progress
 
-**WebView not loading:**
-- Check internet permission in AndroidManifest.xml
-- Verify URL is accessible
-- Check ATS configuration on iOS
+## Dependencies
 
-**Build fails:**
-- Run `flutter clean`
-- Run `flutter pub get`
-- Check Flutter doctor: `flutter doctor -v`
+- `webview_flutter`: ^4.4.2 - WebView implementation
+- `webview_flutter_android`: ^3.12.0 - Android WebView support
+- `webview_flutter_wkwebview`: ^3.9.5 - iOS WebView support
+- `flutter_lints`: ^3.0.1 - Linting rules
 
----
+## Development
 
-## 📞 Support
+### Code Style
 
-For issues or questions, refer to the scrum team documentation or contact the development team.
+This project follows Flutter's recommended coding standards. Run linting:
 
----
+```bash
+flutter analyze
+```
 
-## 📄 License
+### Testing
 
-[Add license information]
+Run tests:
 
----
+```bash
+flutter test
+```
 
-*Last Updated: 2026-03-16*
-*Version: 0.1.0 (Sprint 0)*
+## License
+
+This project is proprietary and confidential.
+
+## Support
+
+For issues and questions, please open an issue on the GitHub repository.

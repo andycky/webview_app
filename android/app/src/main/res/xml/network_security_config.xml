@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- Allow HTTPS for all domains -->
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+    
+    <!-- Domain-specific configuration if needed -->
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="true">doubao.com</domain>
+        <domain includeSubdomains="true">www.doubao.com</domain>
+    </domain-config>
+</network-security-config>

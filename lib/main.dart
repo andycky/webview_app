@@ -1,29 +1,42 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'config/environment.dart';
-import 'screens/webview_screen.dart';
+import 'screens/screens.dart';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  
-  // Load environment variables
-  await Environment.load();
-  
-  runApp(const DoubaoApp());
+void main() {
+  runApp(const DoubaoWebViewApp());
 }
 
-class DoubaoApp extends StatelessWidget {
-  const DoubaoApp({super.key});
+/// Main application widget
+class DoubaoWebViewApp extends StatelessWidget {
+  const DoubaoWebViewApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Doubao',
+      title: 'Doubao WebView',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.blue,
+          brightness: Brightness.light,
+        ),
         useMaterial3: true,
+        appBarTheme: const AppBarTheme(
+          centerTitle: true,
+          elevation: 2,
+        ),
       ),
+      darkTheme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.blue,
+          brightness: Brightness.dark,
+        ),
+        useMaterial3: true,
+        appBarTheme: const AppBarTheme(
+          centerTitle: true,
+          elevation: 2,
+        ),
+      ),
+      themeMode: ThemeMode.system,
       home: const WebViewScreen(),
     );
   }

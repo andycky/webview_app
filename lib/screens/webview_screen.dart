@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
-import '../config/environment.dart';
+import '../config/config.dart';
 import '../widgets/loading_indicator.dart';
 import '../widgets/error_widget.dart';
-import '../utils/url_handler.dart';
 
+/// Main WebView screen that displays the Doubao.com website
 class WebViewScreen extends StatefulWidget {
   const WebViewScreen({super.key});
 
@@ -18,19 +16,19 @@ class _WebViewScreenState extends State<WebViewScreen> {
   late final WebViewController _controller;
   bool _isLoading = true;
   bool _hasError = false;
+  String _errorMessage = '';
   double _progress = 0.0;
-  bool _canGoBack = false;
-  bool _canGoForward = false;
 
   @override
   void initState() {
     super.initState();
-    _initWebView();
+    _initializeWebView();
   }
 
-  void _initWebView() {
+  void _initializeWebView() {
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setBackgroundColor(const Color(0x00000000))
       ..setNavigationDelegate(
         NavigationDelegate(
           onProgress: (int progress) {
@@ -51,75 +49,39 @@ class _WebViewScreenState extends State<WebViewScreen> {
           },
           onWebResourceError: (WebResourceError error) {
             setState(() {
-              _hasError = true;
               _isLoading = false;
+              _hasError = true;
+              _errorMessage = error.description;
             });
-            if (Environment.enableLogging) {
-              print('WebView Error: ${error.description}');
-            }
+            debugPrint('WebView Error: ${error.description}');
           },
           onNavigationRequest: (NavigationRequest request) {
-            return UrlHandler.handleNavigation(request.url);
+            // Allow all navigation
+            return NavigationDecision.navigate;
           },
         ),
       )
-      ..loadRequest(Uri.parse(Environment.doubaoUrl));
+      ..loadRequest(Uri.parse(EnvironmentConfig.baseUrl));
   }
 
-  Future<void> _checkConnectivity() async {
-    final connectivityResult = await Connectivity().checkConnectivity();
-    if (connectivityResult.contains(ConnectivityResult.none)) {
-      setState(() {
-        _hasError = true;
-        _isLoading = false;
-      });
-    }
-  }
-
-  void _reload() {
-    _controller.reload();
+  Future<void> _reloadPage() async {
     setState(() {
       _hasError = false;
+      _isLoading = true;
     });
-  }
-
-  void _goBack() {
-    if (_canGoBack) {
-      _controller.goBack();
-    }
-  }
-
-  void _goForward() {
-    if (_canGoForward) {
-      _controller.goForward();
-    }
+    await _controller.reload();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(Environment.isDevelopment() 
-            ? 'Doubao (${Environment.appEnvironment})' 
-            : 'Doubao'),
+        title: Text('Doubao - ${EnvironmentConfig.environmentName}'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: [
-          // Back button
-          IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: _canGoBack ? _goBack : null,
-            tooltip: 'Back',
-          ),
-          // Forward button
-          IconButton(
-            icon: const Icon(Icons.arrow_forward),
-            onPressed: _canGoForward ? _goForward : null,
-            tooltip: 'Forward',
-          ),
-          // Refresh button
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: _reload,
+            onPressed: _reloadPage,
             tooltip: 'Refresh',
           ),
         ],
@@ -127,23 +89,13 @@ class _WebViewScreenState extends State<WebViewScreen> {
       body: Stack(
         children: [
           WebViewWidget(controller: _controller),
-          
-          // Loading indicator
-          if (_isLoading) const LoadingIndicator(),
-          
-          // Progress bar
-          if (_isLoading && _progress > 0)
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              child: LinearProgressIndicator(value: _progress),
-            ),
-          
-          // Error widget
+          if (_isLoading && !_hasError) ...[
+            LoadingIndicator(progress: _progress),
+          ],
           if (_hasError)
-            ErrorWidgetWidget(
-              onRetry: _reload,
+            ErrorWidget(
+              message: _errorMessage,
+              onRetry: _reloadPage,
             ),
         ],
       ),

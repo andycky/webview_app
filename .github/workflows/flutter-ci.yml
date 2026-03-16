@@ -2,37 +2,75 @@ name: Flutter CI - Build APK
 
 on:
   push:
-    branches: [ main ]
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
   workflow_dispatch:
+    inputs:
+      flavor:
+        description: 'Build flavor (sit/uat/prod)'
+        required: true
+        default: 'prod'
+        type: choice
+        options:
+          - sit
+          - uat
+          - prod
 
 jobs:
   build:
-    name: Build Flutter APK
+    name: Build Flutter APK (${{ github.event.inputs.flavor || 'prod' }})
     runs-on: ubuntu-latest
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.7.0'
+          flutter-version: '3.24.0'
           channel: 'stable'
           cache: true
+          cache-key: flutter-:os:-:arch:-:channel:-:version:-:hash:-${{ hashFiles('**/pubspec.lock') }}
           
-      - name: Get dependencies
+      - name: Get Flutter dependencies
         run: |
           flutter --version
+          flutter doctor -v
           flutter pub get
-          flutter pub upgrade
           
       - name: Build APK
-        run: flutter build apk --release
-        
+        env:
+          FLAVOR: ${{ github.event.inputs.flavor || 'prod' }}
+        run: |
+          echo "Building APK for flavor: $FLAVOR"
+          flutter build apk --flavor $FLAVOR -t lib/main_$FLAVOR.dart --release
+          
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: app-release
-          path: build/app/outputs/flutter-apk/app-release.apk
+          name: app-release-${{ github.event.inputs.flavor || 'prod' }}
+          path: build/app/outputs/flutter-apk/app-*-${{ github.event.inputs.flavor || 'prod' }}-release.apk
           retention-days: 30
+          
+      - name: Create Release (on main branch)
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ github.run_number }}
+          name: Release v${{ github.run_number }}
+          body: |
+            Automated release from GitHub Actions
+            Build: ${{ github.sha }}
+            Flavor: ${{ github.event.inputs.flavor || 'prod' }}
+          files: build/app/outputs/flutter-apk/app-*-${{ github.event.inputs.flavor || 'prod' }}-release.apk
+          token: ${{ secrets.GITHUB_TOKEN }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

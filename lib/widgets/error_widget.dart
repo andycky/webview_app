@@ -1,59 +1,51 @@
 import 'package:flutter/material.dart';
 
-class ErrorWidgetWidget extends StatelessWidget {
+/// Error widget displayed when WebView fails to load
+class ErrorWidget extends StatelessWidget {
+  final String message;
   final VoidCallback onRetry;
-  final String? errorMessage;
 
-  const ErrorWidgetWidget({
+  const ErrorWidget({
     super.key,
+    required this.message,
     required this.onRetry,
-    this.errorMessage,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.error_outline,
-              size: 64,
-              color: Colors.grey[400],
-            ),
-            const SizedBox(height: 24),
-            Text(
-              errorMessage ?? 'Something went wrong',
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
+    return Container(
+      color: Colors.white,
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.error_outline,
+                size: 64,
+                color: Theme.of(context).colorScheme.error,
               ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Please check your connection and try again',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[600],
+              const SizedBox(height: 24),
+              Text(
+                'Failed to load page',
+                style: Theme.of(context).textTheme.headlineSmall,
+                textAlign: TextAlign.center,
               ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 32),
-            ElevatedButton.icon(
-              onPressed: onRetry,
-              icon: const Icon(Icons.refresh),
-              label: const Text('Retry'),
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 32,
-                  vertical: 16,
-                ),
+              const SizedBox(height: 12),
+              Text(
+                message,
+                style: Theme.of(context).textTheme.bodyMedium,
+                textAlign: TextAlign.center,
               ),
-            ),
-          ],
+              const SizedBox(height: 24),
+              ElevatedButton.icon(
+                onPressed: onRetry,
+                icon: const Icon(Icons.refresh),
+                label: const Text('Retry'),
+              ),
+            ],
+          ),
         ),
       ),
     );

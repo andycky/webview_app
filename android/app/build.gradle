@@ -23,7 +23,7 @@ if (flutterVersionName == null) {
 }
 
 android {
-    namespace "com.doubao.webview_app"
+    namespace "com.fubon.cosie"
     compileSdk flutter.compileSdkVersion
     ndkVersion flutter.ndkVersion
 

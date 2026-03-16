@@ -1,4 +1,4 @@
-package com.doubao.webview_app
+package com.fubon.cosie
 
 import io.flutter.embedding.android.FlutterActivity
 

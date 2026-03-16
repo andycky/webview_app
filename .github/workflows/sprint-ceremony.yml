@@ -1,0 +1,111 @@
+name: Sprint Ceremony Automation
+
+on:
+  issues:
+    types: [labeled]
+
+jobs:
+  sprint-start:
+    if: github.event.label.name == 'sprint-start'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Announce Sprint Start
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const issueNumber = context.issue.number;
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber,
+              body: `## 🚀 Sprint Started!
+
+            **Duration:** 10 minutes
+            **Start Time:** ${new Date().toISOString()}
+
+            ### Agent Assignments
+            - @pm-agent: Review and approve UI/UX
+            - @ba-agent: Clarify requirements
+            - @dev-agent: Begin implementation
+            - @qa-agent: Prepare test cases
+            - @scrum-master-agent: Track progress
+
+            ### Timeline
+            - **2 min:** Planning complete
+            - **7 min:** Development complete
+            - **9 min:** Review complete
+            - **10 min:** Sprint end
+
+            Let's go! 🏃💨`
+            });
+
+  sprint-5min-warning:
+    if: github.event.label.name == 'sprint-5min-warning'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 5 Minute Warning
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const issueNumber = context.issue.number;
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber,
+              body: `## ⏰ 5 Minute Warning!
+
+            **Dev Agent:** Please wrap up coding and commit changes.
+            **QA Agent:** Prepare for review.
+            **PM Agent:** Ready for demo.
+
+            5 minutes remaining! 🏃💨`
+            });
+
+  sprint-end:
+    if: github.event.label.name == 'sprint-end'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Announce Sprint End
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const issueNumber = context.issue.number;
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber,
+              body: `## 🏁 Sprint Complete!
+
+            **Duration:** 10 minutes
+            **End Time:** ${new Date().toISOString()}
+
+            ### Next Steps
+            - [ ] Dev Agent: Confirm code committed
+            - [ ] QA Agent: Complete verification
+            - [ ] PM Agent: Accept/reject deliverables
+            - [ ] All: Add retrospective comments
+            - [ ] Scrum Master: Trigger CI build
+
+            ### Retrospective Template
+            ```
+            🟢 Went well:
+            🔴 Improve:
+            💡 Action:
+            ```
+
+            Great work team! 🎉`
+            });
+            
+            // Trigger CI build
+            await github.rest.actions.createWorkflowDispatch({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              workflow_id: 'flutter-ci.yml',
+              ref: 'main'
+            });

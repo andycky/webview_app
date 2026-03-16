@@ -1,0 +1,48 @@
+name: Build Notification
+
+on:
+  workflow_run:
+    workflows: ["Flutter CI - Build APK"]
+    types:
+      - completed
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify Build Result
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const workflowRun = context.payload.workflow_run;
+            const status = workflowRun.conclusion;
+            const runNumber = workflowRun.run_number;
+            
+            const emoji = status === 'success' ? '✅' : '❌';
+            const message = status === 'success' 
+              ? 'Build passed! APK artifacts ready for download.'
+              : 'Build failed! Please check the logs.';
+            
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `${emoji} Build #${runNumber} - ${status.toUpperCase()}`,
+              body: `## Build Result
+
+            **Status:** ${emoji} ${status.toUpperCase()}
+            **Run:** #${runNumber}
+            **Time:** ${new Date(workflowRun.updated_at).toISOString()}
+
+            ${message}
+
+            ### Links
+            - [View Build](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${workflowRun.id})
+            - [Download Artifacts](https://github.com/${context.repo.owner}/${context.repo.repo}/actions/runs/${workflowRun.id}#artifacts)
+
+            ---
+            *Automated by CI/CD System*`,
+              labels: ['ci-build', 'automated']
+            });
+            
+            console.log(`Notified build result: ${status}`);

@@ -63,6 +63,32 @@ jobs:
           path: build/app/outputs/flutter-apk/app-${{ github.event.inputs.flavor || 'prod' }}-release.apk
           retention-days: 30
           
+      - name: Install jq
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push' && secrets.APPETIZE_TOKEN != ''
+        run: sudo apt-get install -y jq
+        continue-on-error: true
+        
+      - name: Upload to Appetize.io
+        id: appetize
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push' && secrets.APPETIZE_TOKEN != ''
+        run: |
+          echo "Uploading APK to Appetize.io..."
+          RESPONSE=$(curl -s -X POST "https://api.appetize.io/v1/apps" \
+            -H "Authorization: Bearer ${{ secrets.APPETIZE_TOKEN }}" \
+            -F "file=@build/app/outputs/flutter-apk/app-${{ github.event.inputs.flavor || 'prod' }}-release.apk" \
+            -F "platform=android" \
+            -F "note=Build #${{ github.run_number }} - ${{ github.sha }}")
+          
+          APP_ID=$(echo $RESPONSE | jq -r '.appId // empty' 2>/dev/null || echo "")
+          if [ ! -z "$APP_ID" ]; then
+            echo "appetize_url=https://appetize.io/app/$APP_ID" >> $GITHUB_OUTPUT
+            echo "✅ Uploaded to Appetize.io: https://appetize.io/app/$APP_ID"
+          else
+            echo "⚠️ Appetize upload failed or skipped (no token)"
+            echo "appetize_url=N/A" >> $GITHUB_OUTPUT
+          fi
+        continue-on-error: true
+          
       - name: Create Release (on main branch)
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         uses: softprops/action-gh-release@v1
@@ -78,16 +104,3 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          
-      - name: Upload to Appetize.io
-        id: appetize
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        uses: appetizeio/action@v1
-        with:
-          token: ${{ secrets.APPETIZE_TOKEN }}
-          path: build/app/outputs/flutter-apk/app-${{ github.event.inputs.flavor || 'prod' }}-release.apk
-          platform: android
-          note: |
-            Build #${{ github.run_number }}
-            Commit: ${{ github.sha }}
-            Flavor: ${{ github.event.inputs.flavor || 'prod' }}

@@ -12,7 +12,7 @@ on:
     inputs:
       flavor:
         description: 'Build flavor (sit/uat/prod)'
-        required: true
+        required: false
         default: 'prod'
         type: choice
         options:
@@ -22,7 +22,7 @@ on:
 
 jobs:
   build:
-    name: Build Flutter APK (${{ github.event.inputs.flavor || 'prod' }})
+    name: Build Flutter APK
     runs-on: ubuntu-latest
     
     steps:
@@ -41,56 +41,52 @@ jobs:
           flutter-version: '3.24.0'
           channel: 'stable'
           cache: true
-          cache-key: flutter-:os:-:arch:-:channel:-:version:-:hash:-${{ hashFiles('**/pubspec.lock') }}
           
       - name: Get Flutter dependencies
         run: |
-          flutter --version
-          flutter doctor -v
           flutter pub get
           
       - name: Build APK
-        env:
-          FLAVOR: ${{ github.event.inputs.flavor || 'prod' }}
         run: |
-          echo "Building APK for flavor: $FLAVOR"
-          flutter build apk --flavor $FLAVOR -t lib/main_$FLAVOR.dart --release
+          echo "Building APK for flavor: prod"
+          flutter build apk --flavor prod -t lib/main_prod.dart --release
           
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: app-release-${{ github.event.inputs.flavor || 'prod' }}
-          path: build/app/outputs/flutter-apk/app-${{ github.event.inputs.flavor || 'prod' }}-release.apk
+          name: app-release-prod
+          path: build/app/outputs/flutter-apk/app-prod-release.apk
           retention-days: 30
           
       - name: Install jq
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push' && secrets.APPETIZE_TOKEN != ''
         run: sudo apt-get install -y jq
         continue-on-error: true
         
       - name: Upload to Appetize.io
         id: appetize
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push' && secrets.APPETIZE_TOKEN != ''
+        if: env.APPETIZE_TOKEN != ''
+        env:
+          APPETIZE_TOKEN: ${{ secrets.APPETIZE_TOKEN }}
         run: |
           echo "Uploading APK to Appetize.io..."
           RESPONSE=$(curl -s -X POST "https://api.appetize.io/v1/apps" \
-            -H "Authorization: Bearer ${{ secrets.APPETIZE_TOKEN }}" \
-            -F "file=@build/app/outputs/flutter-apk/app-${{ github.event.inputs.flavor || 'prod' }}-release.apk" \
+            -H "Authorization: Bearer $APPETIZE_TOKEN" \
+            -F "file=@build/app/outputs/flutter-apk/app-prod-release.apk" \
             -F "platform=android" \
-            -F "note=Build #${{ github.run_number }} - ${{ github.sha }}")
+            -F "note=Build #${{ github.run_number }}")
           
           APP_ID=$(echo $RESPONSE | jq -r '.appId // empty' 2>/dev/null || echo "")
           if [ ! -z "$APP_ID" ]; then
             echo "appetize_url=https://appetize.io/app/$APP_ID" >> $GITHUB_OUTPUT
             echo "SUCCESS: Uploaded to Appetize.io: https://appetize.io/app/$APP_ID"
           else
-            echo "WARNING: Appetize upload failed or skipped (no token)"
+            echo "WARNING: Appetize upload failed or skipped"
             echo "appetize_url=N/A" >> $GITHUB_OUTPUT
           fi
         continue-on-error: true
           
-      - name: Create Release (on main branch)
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+      - name: Create Release
+        if: github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v1
         with:
           tag_name: v${{ github.run_number }}
@@ -98,9 +94,6 @@ jobs:
           body: |
             Automated release from GitHub Actions
             Build: ${{ github.sha }}
-            Flavor: ${{ github.event.inputs.flavor || 'prod' }}
-            Appetize Preview: ${{ steps.appetize.outputs.appetize_url || 'N/A' }}
-          files: build/app/outputs/flutter-apk/app-${{ github.event.inputs.flavor || 'prod' }}-release.apk
+            Appetize: ${{ steps.appetize.outputs.appetize_url || 'N/A' }}
+          files: build/app/outputs/flutter-apk/app-prod-release.apk
           token: ${{ secrets.GITHUB_TOKEN }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

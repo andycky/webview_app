@@ -1,0 +1,77 @@
+name: Scrum Master - Daily Reminders
+
+on:
+  schedule:
+    # Daily standup reminder at 09:00 UTC
+    - cron: '0 9 * * *'
+  workflow_dispatch:
+
+jobs:
+  daily-standup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create Daily Standup Issue
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const today = new Date().toISOString().split('T')[0];
+            
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: `📋 Daily Standup - ${today}`,
+              body: `## Daily Standup - ${today}
+
+            ### Team Members
+            Please comment with your updates:
+
+            - **PM Agent:** What did you work on? Any blockers?
+            - **BA Agent:** What requirements are in progress?
+            - **Dev Agent:** What did you complete? What's next?
+            - **QA Agent:** What testing is in progress?
+            - **Scrum Master:** Any blockers to remove?
+
+            ### Today's Focus
+            - Sprint 1 Progress
+            - Blocker identification
+            - Goal alignment
+
+            ---
+            *Automated by Scrum Master Agent*`,
+              labels: ['daily-standup', 'scrum-master']
+            });
+            
+            console.log('Created daily standup issue for ${today}');
+
+  sprint-reminder:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' && new Date().getDay() === 1
+    steps:
+      - name: Weekly Sprint Reminder
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: '🎯 Sprint Planning Reminder',
+              body: `## Sprint Planning Reminder
+
+            ### This Week
+            - Review sprint progress
+            - Update sprint board
+            - Identify blockers
+            - Plan next sprint if needed
+
+            ### Action Items
+            - [ ] Scrum Master: Update sprint status
+            - [ ] All Agents: Confirm availability
+            - [ ] Dev Agent: Demo completed work
+            - [ ] QA Agent: Report testing status
+
+            ---
+            *Automated by Scrum Master Agent*`,
+              labels: ['sprint-planning', 'scrum-master']
+            });

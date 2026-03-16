@@ -1,0 +1,46 @@
+name: doubao_webview_app
+description: A Flutter WebView wrapper app for Doubao.com
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.6
+  webview_flutter: ^4.4.2
+  flutter_dotenv: ^5.1.0
+  connectivity_plus: ^5.0.2
+  url_launcher: ^6.2.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.1
+  flutter_launcher_icons: ^0.13.1
+  flutter_native_splash: ^2.3.8
+
+flutter:
+  uses-material-design: true
+  
+  assets:
+    - .env
+    - .env.sit
+    - .env.uat
+    - .env.prod
+
+# flutter_launcher_icons configuration
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/icon/app_icon.png"
+  min_sdk_android: 21
+
+# flutter_native_splash configuration
+flutter_native_splash:
+  color: "#ffffff"
+  image: "assets/splash/splash.png"
+  android: true
+  ios: true

@@ -1,7 +1,7 @@
-name: webview_app
-description: A Flutter WebView app for Doubao.com with environment configuration (SIT/UAT/PROD)
+name: doubao_webview_app
+description: A Flutter WebView wrapper app for Doubao.com with environment configuration (SIT/UAT/PROD)
 publish_to: 'none'
-version: 1.0.0+1
+version: 1.0.1+1
 
 environment:
   sdk: '>=3.0.0 <4.0.0'
@@ -9,10 +9,13 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  cupertino_icons: ^1.0.6
   webview_flutter: ^4.4.2
   webview_flutter_android: ^3.12.0
   webview_flutter_wkwebview: ^3.9.5
-  cupertino_icons: ^1.0.6
+  flutter_dotenv: ^5.1.0
+  connectivity_plus: ^5.0.2
+  url_launcher: ^6.2.1
 
 dev_dependencies:
   flutter_test:

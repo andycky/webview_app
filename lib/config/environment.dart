@@ -18,22 +18,23 @@ class Environment {
       envFile = buildFlavor.isNotEmpty ? buildFlavor : '.env';
     }
     
+    // Set defaults first (before any async operations)
+    _setDefaultValues();
+    
     try {
-      await dotenv.load(fileName: envFile);
+      await dotenv.load(fileName: envFile, isOptional: true);
       print('Loaded environment: $envFile');
     } catch (e) {
-      // Fallback to default .env if flavor-specific file not found
-      print('Warning: Could not load $envFile, falling back to .env');
-      try {
-        await dotenv.load(fileName: '.env');
-        print('Loaded default environment: .env');
-      } catch (fallbackError) {
-        print('Error loading environment: $fallbackError');
-        // Set defaults if no env file is available
-        dotenv.env['DOUBAO_URL'] = 'https://www.doubao.com/';
-        dotenv.env['APP_ENVIRONMENT'] = 'development';
-      }
+      print('Warning: Could not load $envFile ($e)');
+      // Defaults already set, continue with those
     }
+  }
+
+  static void _setDefaultValues() {
+    dotenv.env['DOUBAO_URL'] = 'https://www.doubao.com/';
+    dotenv.env['APP_ENVIRONMENT'] = 'PROD';
+    dotenv.env['ENABLE_DEBUG_MODE'] = 'false';
+    dotenv.env['ENABLE_LOGGING'] = 'false';
   }
 
   static bool isProduction() {

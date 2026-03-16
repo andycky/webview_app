@@ -1,28 +1,26 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'config/environment.dart';
 import 'screens/webview_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Load UAT environment
-  await Environment.load(flavor: 'uat');
+  // Initialize environment
+  await Environment.load();
   
-  runApp(const DoubaoApp());
+  runApp(const CosieApp());
 }
 
-class DoubaoApp extends StatelessWidget {
-  const DoubaoApp({super.key});
+class CosieApp extends StatelessWidget {
+  const CosieApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Doubao UAT',
+      title: 'Cosie',
       debugShowCheckedModeBanner: false,
-      debugShowMaterialGrid: true,
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.green),
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
       home: const WebViewScreen(),

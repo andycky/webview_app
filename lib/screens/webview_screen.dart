@@ -4,7 +4,7 @@ import '../config/environment.dart';
 import '../widgets/loading_indicator.dart';
 import '../widgets/error_widget.dart' as custom;
 
-/// Main WebView screen that displays the Doubao.com website
+/// Main WebView screen that displays the Cosie website
 class WebViewScreen extends StatefulWidget {
   const WebViewScreen({super.key});
 

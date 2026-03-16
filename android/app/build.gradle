@@ -59,20 +59,17 @@ android {
             applicationIdSuffix ".sit"
             buildConfigField "String", "ENVIRONMENT", "\"SIT\""
             buildConfigField "String", "BASE_URL", "\"https://www.doubao.com/\""
-            manifestPlaceholders = [appName: "Doubao SIT"]
         }
         uat {
             dimension "environment"
             applicationIdSuffix ".uat"
             buildConfigField "String", "ENVIRONMENT", "\"UAT\""
             buildConfigField "String", "BASE_URL", "\"https://www.doubao.com/\""
-            manifestPlaceholders = [appName: "Doubao UAT"]
         }
         prod {
             dimension "environment"
             buildConfigField "String", "ENVIRONMENT", "\"PROD\""
             buildConfigField "String", "BASE_URL", "\"https://www.doubao.com/\""
-            manifestPlaceholders = [appName: "Doubao"]
         }
     }
 

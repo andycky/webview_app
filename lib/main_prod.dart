@@ -5,19 +5,19 @@ import 'screens/webview_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
-  // Initialize environment (compile-time constants for PROD flavor)
-  await Environment.load(flavor: 'prod');
+  // Initialize environment
+  await Environment.load();
   
-  runApp(const DoubaoApp());
+  runApp(const CosieApp());
 }
 
-class DoubaoApp extends StatelessWidget {
-  const DoubaoApp({super.key});
+class CosieApp extends StatelessWidget {
+  const CosieApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Doubao',
+      title: 'Cosie',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),

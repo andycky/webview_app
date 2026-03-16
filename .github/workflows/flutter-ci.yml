@@ -82,9 +82,9 @@ jobs:
           APP_ID=$(echo $RESPONSE | jq -r '.appId // empty' 2>/dev/null || echo "")
           if [ ! -z "$APP_ID" ]; then
             echo "appetize_url=https://appetize.io/app/$APP_ID" >> $GITHUB_OUTPUT
-            echo "✅ Uploaded to Appetize.io: https://appetize.io/app/$APP_ID"
+            echo "SUCCESS: Uploaded to Appetize.io: https://appetize.io/app/$APP_ID"
           else
-            echo "⚠️ Appetize upload failed or skipped (no token)"
+            echo "WARNING: Appetize upload failed or skipped (no token)"
             echo "appetize_url=N/A" >> $GITHUB_OUTPUT
           fi
         continue-on-error: true

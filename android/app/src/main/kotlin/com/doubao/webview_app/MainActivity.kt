@@ -1,4 +1,4 @@
-package com.example.doubao_webview_app
+package com.doubao.webview_app
 
 import io.flutter.embedding.android.FlutterActivity
 

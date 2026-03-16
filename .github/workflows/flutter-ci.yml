@@ -17,13 +17,15 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.13.0'
+          flutter-version: '3.7.0'
           channel: 'stable'
           cache: true
           
       - name: Get dependencies
         run: |
+          flutter --version
           flutter pub get
+          flutter pub upgrade
           
       - name: Build APK
         run: flutter build apk --release

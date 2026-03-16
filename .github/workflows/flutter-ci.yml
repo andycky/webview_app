@@ -57,7 +57,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: app-release-${{ github.event.inputs.flavor || 'prod' }}
-          path: build/app/outputs/flutter-apk/app-*-${{ github.event.inputs.flavor || 'prod' }}-release.apk
+          path: build/app/outputs/flutter-apk/app-${{ github.event.inputs.flavor || 'prod' }}-release.apk
           retention-days: 30
           
       - name: Create Release (on main branch)
@@ -70,7 +70,7 @@ jobs:
             Automated release from GitHub Actions
             Build: ${{ github.sha }}
             Flavor: ${{ github.event.inputs.flavor || 'prod' }}
-          files: build/app/outputs/flutter-apk/app-*-${{ github.event.inputs.flavor || 'prod' }}-release.apk
+          files: build/app/outputs/flutter-apk/app-${{ github.event.inputs.flavor || 'prod' }}-release.apk
           token: ${{ secrets.GITHUB_TOKEN }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

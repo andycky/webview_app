@@ -84,7 +84,7 @@ class _WebViewScreenState extends State<WebViewScreen> {
           ),
         ),
         title: const Text('Cosie'),
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
+        backgroundColor: const Color(0xFF009F96),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),

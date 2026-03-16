@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 import '../config/environment.dart';
 import '../widgets/loading_indicator.dart';
-import '../widgets/error_widget.dart';
+import '../widgets/error_widget.dart' as custom;
 
 /// Main WebView screen that displays the Doubao.com website
 class WebViewScreen extends StatefulWidget {
@@ -93,7 +93,7 @@ class _WebViewScreenState extends State<WebViewScreen> {
             LoadingIndicator(progress: _progress),
           ],
           if (_hasError)
-            ErrorWidget(
+            custom.ErrorWidget(
               message: _errorMessage,
               onRetry: _reloadPage,
             ),

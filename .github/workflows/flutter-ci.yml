@@ -2,8 +2,6 @@ name: Flutter CI - Build APK
 
 on:
   push:
-    branches: [ main, develop ]
-  pull_request:
     branches: [ main ]
   workflow_dispatch:
 
@@ -26,32 +24,12 @@ jobs:
       - name: Get dependencies
         run: flutter pub get
         
-      - name: Build APK (SIT)
-        run: flutter build apk --flavor sit -t lib/main.dart --release
+      - name: Build APK
+        run: flutter build apk --release
         
-      - name: Build APK (UAT)
-        run: flutter build apk --flavor uat -t lib/main.dart --release
-        
-      - name: Build APK (PROD)
-        run: flutter build apk --flavor prod -t lib/main.dart --release
-        
-      - name: Upload SIT APK Artifact
+      - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: app-sit-release
-          path: build/app/outputs/flutter-apk/app-sit-release.apk
-          retention-days: 30
-          
-      - name: Upload UAT APK Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-uat-release
-          path: build/app/outputs/flutter-apk/app-uat-release.apk
-          retention-days: 30
-          
-      - name: Upload PROD APK Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-prod-release
-          path: build/app/outputs/flutter-apk/app-prod-release.apk
+          name: app-release
+          path: build/app/outputs/flutter-apk/app-release.apk
           retention-days: 30

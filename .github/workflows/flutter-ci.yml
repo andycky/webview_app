@@ -2,8 +2,6 @@ name: Flutter CI - Build APK
 
 permissions:
   contents: write
-  artifacts: write
-  packages: write
 
 on:
   push:

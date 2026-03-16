@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'config/environment.dart';
 import 'screens/screens.dart';
 
-void main() {
+Future<void> main() async {
+  // Load environment configuration
+  await Environment.load();
   runApp(const DoubaoWebViewApp());
 }
 

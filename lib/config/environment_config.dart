@@ -2,30 +2,67 @@
 /// Supports SIT, UAT, and PROD environments
 library;
 
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 /// Available environments
 enum Environment { sit, uat, prod }
 
 /// Configuration class for environment settings
 class EnvironmentConfig {
-  /// Current active environment
-  static const Environment currentEnvironment = Environment.prod;
+  static Environment? _currentEnvironment;
+  static String? _baseUrl;
 
-  /// Base URLs for each environment
-  static const Map<Environment, String> _baseUrlMap = {
-    Environment.sit: 'https://sit.doubao.com',
-    Environment.uat: 'https://uat.doubao.com',
-    Environment.prod: 'https://www.doubao.com',
-  };
+  /// Load environment configuration from .env file
+  static Future<void> loadEnvironment({String? flavor}) async {
+    String envFile;
+    
+    if (flavor != null) {
+      envFile = '.env.$flavor';
+    } else {
+      // Try to determine environment from build args or default to prod
+      const String buildEnv = String.fromEnvironment('APP_ENV', defaultValue: 'prod');
+      envFile = '.env.$buildEnv';
+    }
+    
+    try {
+      await dotenv.load(fileName: envFile);
+      _parseEnvironment();
+    } catch (e) {
+      // Fallback to .env.prod if flavor-specific file not found
+      try {
+        await dotenv.load(fileName: '.env.prod');
+        _parseEnvironment();
+      } catch (fallbackError) {
+        // Set defaults if no env file is available
+        _currentEnvironment = Environment.prod;
+        _baseUrl = 'https://www.doubao.com';
+      }
+    }
+  }
+
+  static void _parseEnvironment() {
+    final envString = dotenv.env['APP_ENVIRONMENT'] ?? 'prod';
+    _currentEnvironment = _parseEnvironmentEnum(envString);
+    _baseUrl = dotenv.env['DOUBAO_URL'] ?? 'https://www.doubao.com';
+  }
+
+  static Environment _parseEnvironmentEnum(String envString) {
+    switch (envString.toUpperCase()) {
+      case 'SIT':
+        return Environment.sit;
+      case 'UAT':
+        return Environment.uat;
+      case 'PROD':
+      default:
+        return Environment.prod;
+    }
+  }
+
+  /// Get the current environment
+  static Environment get currentEnvironment => _currentEnvironment ?? Environment.prod;
 
   /// Get the base URL for the current environment
-  static String get baseUrl {
-    return _baseUrlMap[currentEnvironment] ?? _baseUrlMap[Environment.prod]!;
-  }
-
-  /// Get the base URL for a specific environment
-  static String getBaseUrlForEnvironment(Environment env) {
-    return _baseUrlMap[env] ?? _baseUrlMap[Environment.prod]!;
-  }
+  static String get baseUrl => _baseUrl ?? 'https://www.doubao.com';
 
   /// Check if current environment is SIT
   static bool get isSIT => currentEnvironment == Environment.sit;
@@ -47,4 +84,10 @@ class EnvironmentConfig {
         return 'PROD';
     }
   }
+
+  /// Check if debug mode is enabled
+  static bool get isDebugMode => dotenv.env['ENABLE_DEBUG_MODE'] == 'true';
+
+  /// Check if logging is enabled
+  static bool get isLoggingEnabled => dotenv.env['ENABLE_LOGGING'] == 'true';
 }

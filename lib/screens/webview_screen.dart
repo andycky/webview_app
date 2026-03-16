@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:webview_flutter/webview_flutter.dart';
-import '../config/config.dart';
+import '../config/environment.dart';
 import '../widgets/loading_indicator.dart';
 import '../widgets/error_widget.dart';
 
@@ -61,7 +61,7 @@ class _WebViewScreenState extends State<WebViewScreen> {
           },
         ),
       )
-      ..loadRequest(Uri.parse(EnvironmentConfig.baseUrl));
+      ..loadRequest(Uri.parse(Environment.doubaoUrl));
   }
 
   Future<void> _reloadPage() async {
@@ -76,7 +76,7 @@ class _WebViewScreenState extends State<WebViewScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Doubao - ${EnvironmentConfig.environmentName}'),
+        title: Text('Doubao - ${Environment.appEnvironment.toUpperCase()}'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: [
           IconButton(

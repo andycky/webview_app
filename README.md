@@ -15,21 +15,30 @@ A Flutter WebView application that wraps Doubao.com with support for multiple en
 
 ## Environment Configuration
 
-The app supports three environments configurable in `lib/config/environment_config.dart`:
+The app supports three environments configured via `.env` files:
 
-| Environment | Base URL |
-|-------------|----------|
-| SIT | https://sit.doubao.com |
-| UAT | https://uat.doubao.com |
-| PROD | https://www.doubao.com |
+| Environment | File | Base URL |
+|-------------|------|----------|
+| SIT | `.env.sit` | https://www.doubao.com/ |
+| UAT | `.env.uat` | https://www.doubao.com/ |
+| PROD | `.env.prod` | https://www.doubao.com/ |
 
 ### Changing Environment
 
-To switch environments, modify the `currentEnvironment` in `lib/config/environment_config.dart`:
+To switch environments, use the `--dart-define` flag when building:
 
-```dart
-static const Environment currentEnvironment = Environment.prod; // Change to .sit or .uat
+```bash
+# Build for SIT
+flutter build apk --dart-define=APP_ENV=sit
+
+# Build for UAT
+flutter build apk --dart-define=APP_ENV=uat
+
+# Build for Production
+flutter build apk --dart-define=APP_ENV=prod
 ```
+
+Or modify the `DOUBAO_URL` in the respective `.env.*` file.
 
 ## Project Structure
 
@@ -129,6 +138,7 @@ The app includes comprehensive error handling:
 - `webview_flutter`: ^4.4.2 - WebView implementation
 - `webview_flutter_android`: ^3.12.0 - Android WebView support
 - `webview_flutter_wkwebview`: ^3.9.5 - iOS WebView support
+- `flutter_dotenv`: ^5.1.0 - Environment configuration
 - `flutter_lints`: ^3.0.1 - Linting rules
 
 ## Development

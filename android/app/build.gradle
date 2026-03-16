@@ -48,6 +48,27 @@ android {
         versionName flutterVersionName
     }
 
+    flavorDimensions "environment"
+    productFlavors {
+        sit {
+            dimension "environment"
+            applicationIdSuffix ".sit"
+            buildConfigField "String", "ENVIRONMENT", "\"SIT\""
+            buildConfigField "String", "BASE_URL", "\"https://sit.doubao.com\""
+        }
+        uat {
+            dimension "environment"
+            applicationIdSuffix ".uat"
+            buildConfigField "String", "ENVIRONMENT", "\"UAT\""
+            buildConfigField "String", "BASE_URL", "\"https://uat.doubao.com\""
+        }
+        prod {
+            dimension "environment"
+            buildConfigField "String", "ENVIRONMENT", "\"PROD\""
+            buildConfigField "String", "BASE_URL", "\"https://www.doubao.com\""
+        }
+    }
+
     buildTypes {
         release {
             signingConfig signingConfigs.debug

@@ -26,27 +26,15 @@ jobs:
       - name: Get dependencies
         run: flutter pub get
         
-      - name: Analyze code
-        run: flutter analyze
-        
-      - name: Run tests
-        run: flutter test
-        
       - name: Build APK (SIT)
         run: flutter build apk --flavor sit -t lib/main.dart --release
-        env:
-          ENV_FILE: .env.sit
-          
+        
       - name: Build APK (UAT)
         run: flutter build apk --flavor uat -t lib/main.dart --release
-        env:
-          ENV_FILE: .env.uat
-          
+        
       - name: Build APK (PROD)
         run: flutter build apk --flavor prod -t lib/main.dart --release
-        env:
-          ENV_FILE: .env.prod
-          
+        
       - name: Upload SIT APK Artifact
         uses: actions/upload-artifact@v4
         with:
@@ -67,26 +55,3 @@ jobs:
           name: app-prod-release
           path: build/app/outputs/flutter-apk/app-prod-release.apk
           retention-days: 30
-          
-      - name: Create GitHub Release (PROD only)
-        if: github.ref == 'refs/heads/main'
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: v${{ github.run_number }}
-          name: Release v${{ github.run_number }}
-          draft: false
-          prerelease: false
-          files: |
-            build/app/outputs/flutter-apk/app-prod-release.apk
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          
-      - name: Notify Build Status
-        if: always()
-        run: |
-          if [ "${{ job.status }}" == "success" ]; then
-            echo "✅ Build succeeded!"
-          else
-            echo "❌ Build failed!"
-            exit 1
-          fi

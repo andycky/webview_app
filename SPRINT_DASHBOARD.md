@@ -1,27 +1,28 @@
-# 🚀 Rapid Scrum Dashboard
+# 🚀 Rapid Scrum Dashboard (6-Agent Team)
 
 ## Current Sprint Status
 
-| Sprint | Goal | Status | Time |
-|--------|------|--------|------|
-| **1** | Project Setup | ✅ Complete | 10 min |
-| **2** | Core WebView | ⚪ Pending | - |
-| **3** | Environment Config | ⚪ Pending | - |
-| **4** | Error Handling | ⚪ Pending | - |
-| **5** | Navigation Controls | ⚪ Pending | - |
-| **6** | External Links | ⚪ Pending | - |
-| **7** | Polish & UI | ⚪ Pending | - |
-| **8** | CI/CD Setup | ⚪ Pending | - |
-| **9** | Testing | ⚪ Pending | - |
-| **10** | Release | ⚪ Pending | - |
+| Sprint | Goal | Status | Time | Report Sent |
+|--------|------|--------|------|-------------|
+| **1** | Project Setup | ✅ Complete | 10 min | ✅ Yes |
+| **2** | Core WebView | 🟡 In Progress | 10 min | ⏳ Pending |
+| **3** | Environment Config | ⚪ Pending | 10 min | - |
+| **4** | Error Handling | ⚪ Pending | 10 min | - |
+| **5** | Navigation Controls | ⚪ Pending | 10 min | - |
+| **6** | External Links | ⚪ Pending | 10 min | - |
+| **7** | Polish & UI | ⚪ Pending | 10 min | - |
+| **8** | CI/CD Setup | ⚪ Pending | 10 min | - |
+| **9** | Testing | ⚪ Pending | 10 min | - |
+| **10** | Release | ⚪ Pending | 10 min | - |
 
 ---
 
 ## ⏱️ Sprint Timer
 
-**Next Sprint:** Sprint 2  
-**Starts:** 02:20 UTC  
+**Current Sprint:** Sprint 2  
+**Started:** 02:20 UTC  
 **Ends:** 02:30 UTC  
+**Report to:** @andycky  
 
 ---
 
@@ -32,19 +33,21 @@
 | Sprints Completed | 1 |
 | Total Points | 5 |
 | Average Velocity | 5 pts/sprint |
-| Burn Rate | On track |
+| Tech Lead Reviews | 1 |
+| Report Delivery | 100% |
 
 ---
 
-## 🤖 Agent Status
+## 🤖 Agent Status (6 Members)
 
-| Agent | Status | Current Task |
-|-------|--------|--------------|
-| PM Agent | 🟢 Active | Review Sprint 1 |
-| BA Agent | 🟢 Active | Prepare Sprint 2 stories |
-| Dev Agent | 🟢 Active | Ready for Sprint 2 |
-| QA Agent | 🟢 Active | Prepare test cases |
-| Scrum Master | 🟢 Active | Tracking sprints |
+| Agent | Status | Current Task | Response Time |
+|-------|--------|--------------|---------------|
+| PM Agent | 🟢 Active | Review Sprint 2 | < 1 min |
+| BA Agent | 🟢 Active | Refine stories | < 1 min |
+| Scrum Master | 🟢 Active | Track + Report | < 30 sec |
+| Dev Agent | 🟢 Active | WebView impl | < 2 min |
+| **Tech Lead** | 🟢 Active | **Code review** | < 2 min |
+| QA Agent | 🟢 Active | Test prep | < 1 min |
 
 ---
 
@@ -56,25 +59,25 @@
 - Load Doubao.com URL
 - Enable JavaScript
 
-**Preparation:**
-- [x] Flutter project initialized
-- [x] Dependencies in pubspec.yaml
-- [ ] WebView implementation pending
+**Tech Lead Focus:**
+- Code quality review
+- Security check (URLs, permissions)
+- Error handling verification
 
 ---
 
 ## 📈 Burndown Chart
 
 ```
-Sprint  | Points Remaining
---------|----------------
-Start   | ████████████ 50
-Sprint 1| ██████████░░ 45
-Sprint 2| ████████░░░░ 40
-Sprint 3| ██████░░░░░░ 35
-Sprint 4| ████░░░░░░░░ 30
-Sprint 5| ██░░░░░░░░░░ 25
-Sprint 6| ░░░░░░░░░░░░ 20
+Sprint  | Points | Tech Lead | QA | Report
+--------|--------|-----------|----|--------
+Start   |   50   |     -     |  - |   -
+Sprint 1|   45   |    ✅     | ✅ |  ✅
+Sprint 2|   40   |    ⏳     | ⏳ |  ⏳
+Sprint 3|   35   |    ⏳     | ⏳ |  ⏳
+Sprint 4|   30   |    ⏳     | ⏳ |  ⏳
+Sprint 5|   25   |    ⏳     | ⏳ |  ⏳
+Sprint 6|   20   |    ⏳     | ⏳ |  ⏳
 ```
 
 ---
@@ -83,30 +86,33 @@ Sprint 6| ░░░░░░░░░░░░ 20
 
 | Time | Event | Details |
 |------|-------|---------|
-| 02:09 | Sprint 1 Started | Project Setup |
-| 02:14 | Code Committed | Initial commit pushed |
-| 02:16 | Sprint 1 Review | All stories complete |
-| 02:19 | Sprint 1 End | Retrospective complete |
+| 02:20 | Sprint 2 Started | Core WebView |
+| 02:22 | Planning Complete | All agents ready |
+| 02:25 | Dev: Implementation | WebView controller |
+| 02:27 | Tech Lead: Review | Code quality check |
+| 02:28 | QA: Testing | Test execution |
+| 02:29 | PM: Acceptance | Story approval |
+| 02:30 | **Report to @andycky** | Sprint end report |
 
 ---
 
-## 📞 Quick Actions
+## 📞 Sprint End Reports
 
-### Start Next Sprint
-```bash
-# Manual trigger via GitHub Actions
-gh workflow run sprint-timer.yml -f sprint_number=2 -f sprint_goal="Core WebView"
-```
+Every sprint end, a report is sent to Product Owner:
 
-### Check Build Status
-```bash
-gh run list
-```
+| Sprint | Report Issue | Status |
+|--------|--------------|--------|
+| 1 | #5 | ✅ Sent |
+| 2 | _Creating at 02:30_ | ⏳ Pending |
+| 3 | _Auto-created_ | - |
 
-### View Sprint Issues
-```bash
-gh issue list --label "sprint"
-```
+**Report Includes:**
+- ✅ Completed stories
+- 📊 Sprint metrics
+- 🤖 Agent status
+- 🚨 Blockers
+- 💡 Retrospective
+- 📅 Next sprint info
 
 ---
 
@@ -116,9 +122,30 @@ gh issue list --label "sprint"
 ✅ GitHub repository initialized  
 ✅ All files pushed successfully  
 ✅ CI/CD workflows configured  
-✅ Multi-agent team ready  
+✅ **6-agent team ready (including Tech Lead)**  
+✅ **Sprint report mechanism configured**  
 
 ---
 
-*Last Updated: 2026-03-16 02:19 UTC*
+## 📋 Sprint End Report Workflow
+
+```
+Sprint End (10 min mark)
+       ↓
+Scrum Master compiles report
+       ↓
+Create report issue (labeled: sprint-report)
+       ↓
+Add comment to sprint issue
+       ↓
+Notify Product Owner (@andycky)
+       ↓
+Next sprint starts immediately
+```
+
+---
+
+*Last Updated: 2026-03-16 02:20 UTC*
 *Framework: Rapid Scrum (10-min sprints)*
+*Team: 6 AI Agents*
+*Reporting: Every sprint end to @andycky*

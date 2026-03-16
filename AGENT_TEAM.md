@@ -1,39 +1,76 @@
-# Multi-AI Agent Scrum Team Configuration
+# 🤖 Multi-AI Agent Scrum Team
 
-## 🤖 AI Agent Roles
+## Team Structure (6 Members)
 
-This project uses multiple AI agents to simulate a full scrum team. Each agent has specific responsibilities.
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                      Product Owner (You)                        │
+│                         ↑ Reports Every Sprint                  │
+└─────────────────────────────────────────────────────────────────┘
+                              ▲
+                              │
+                    ┌─────────┴─────────┐
+                    │  Scrum Master     │
+                    │  (Coordinator)    │
+                    └─────────┬─────────┘
+                              │
+        ┌─────────────────────┼─────────────────────┐
+        │                     │                     │
+┌───────┴───────┐    ┌────────┴───────┐    ┌───────┴───────┐
+│  PM Agent     │    │  BA Agent      │    │ Tech Lead     │
+│  (Design)     │    │ (Requirements) │    │ (Review)      │
+└───────────────┘    └────────────────┘    └───────┬───────┘
+                                                   │
+                    ┌──────────────────────────────┼──────────┐
+                    │                              │          │
+            ┌───────┴───────┐            ┌─────────┴────┐    │
+            │  Dev Agent    │            │  QA Agent    │    │
+            │ (Implementation)          │  (Testing)   │    │
+            └───────────────┘            └──────────────┘    │
+                    │                                        │
+                    └────────────────────────────────────────┘
+                              │
+                              ▼
+                    ┌─────────────────┐
+                    │   Sprint End    │
+                    │   Report to You │
+                    └─────────────────┘
+```
 
 ---
 
-## Agent Assignments
+## 🎯 Agent Roles & Responsibilities
 
-### 1. Product Manager Agent
-**Agent ID:** `pm-agent`  
+### 1. Product Manager Agent (`pm-agent`)
 **Model:** qwen3.5-plus  
+**Thinking:** On  
+**Timeout:** 5 min
+
 **Responsibilities:**
 - Design UI/UX mockups and specifications
-- Define feature priorities
+- Define feature priorities and roadmap
 - Review and approve deliverables
-- Create product roadmap
+- Accept/reject completed user stories
 
 **Triggers:**
 - New feature requests
 - Sprint planning
-- Design reviews
+- Story acceptance
 
-**Output:** UI specs, feature documents, priority backlog
+**Output:** UI specs, feature documents, priority backlog, acceptance decisions
 
 ---
 
-### 2. Business Analyst Agent
-**Agent ID:** `ba-agent`  
+### 2. Business Analyst Agent (`ba-agent`)
 **Model:** qwen3.5-plus  
+**Thinking:** On  
+**Timeout:** 5 min
+
 **Responsibilities:**
 - Translate PM specs into detailed requirements
-- Write user stories with acceptance criteria
-- Document functional requirements
-- Clarify requirements for developers
+- Write user stories with clear acceptance criteria
+- Document functional and non-functional requirements
+- Clarify requirements for development team
 
 **Triggers:**
 - PM deliverables received
@@ -44,58 +81,86 @@ This project uses multiple AI agents to simulate a full scrum team. Each agent h
 
 ---
 
-### 3. Scrum Master Agent
-**Agent ID:** `scrum-master-agent`  
+### 3. Scrum Master Agent (`scrum-master-agent`)
 **Model:** qwen3.5-plus  
+**Thinking:** Off (fast response)  
+**Timeout:** 2 min
+
 **Responsibilities:**
-- Create and maintain sprint plans
+- Create and maintain sprint plans (10-min cycles)
 - Track progress and velocity
-- Send reminders for ceremonies
-- Remove blockers
-- Facilitate standups, reviews, retrospectives
+- Send reminders for sprint ceremonies
+- Remove blockers immediately
+- **Report sprint results to Product Owner after every sprint** ⭐
+- Facilitate daily standups, reviews, retrospectives
 
 **Triggers:**
-- Sprint start/end
-- Daily standup time
+- Sprint start/end (every 10 min)
 - Blocker detection
-- Progress tracking
+- Sprint completion
 
-**Output:** Sprint plans, progress reports, reminders
+**Output:** Sprint plans, progress reports, **Sprint End Reports to You**, reminders
 
 ---
 
-### 4. Developer Agent
-**Agent ID:** `dev-agent`  
+### 4. Developer Agent (`dev-agent`)
 **Model:** qwen3.5-plus  
+**Thinking:** On  
+**Timeout:** 7 min
+
 **Responsibilities:**
 - Implement Flutter code
-- Code reviews
 - Fix bugs
 - Update documentation
-- CI/CD maintenance
+- Commit code to GitHub
+- Respond to Tech Lead feedback
 
 **Triggers:**
 - User stories assigned
 - Bug reports
-- Code review requests
-- Build failures
+- Tech Lead review feedback
 
 **Output:** Code, PRs, bug fixes, technical docs
 
 ---
 
-### 5. QA Agent
-**Agent ID:** `qa-agent`  
+### 5. Tech Lead Agent (`tech-lead-agent`) ⭐ NEW
 **Model:** qwen3.5-plus  
+**Thinking:** On (deep review)  
+**Timeout:** 5 min
+
+**Responsibilities:**
+- **Review all code deliverables before QA** ⭐
+- **Troubleshoot any failure cases** ⭐
+- **Technical architecture decisions** ⭐
+- **Code quality and best practices enforcement** ⭐
+- **Debug CI/CD failures** ⭐
+- **Mentor Dev Agent on technical issues** ⭐
+
+**Triggers:**
+- Dev Agent completes implementation
+- CI/CD build failures
+- Technical blockers
+- Code review requests
+
+**Output:** Code reviews, technical decisions, troubleshooting guides, architecture docs
+
+---
+
+### 6. QA Agent (`qa-agent`)
+**Model:** qwen3.5-plus  
+**Thinking:** On  
+**Timeout:** 5 min
+
 **Responsibilities:**
 - Create test plans and test cases
 - Execute manual/automated tests
-- Report bugs
-- Verify fixes
-- Release sign-off
+- Report bugs with reproduction steps
+- Verify fixes from Dev Agent
+- Release sign-off (after Tech Lead approval)
 
 **Triggers:**
-- Feature complete notification
+- Tech Lead approval received
 - Bug fix verification
 - Release preparation
 
@@ -103,144 +168,232 @@ This project uses multiple AI agents to simulate a full scrum team. Each agent h
 
 ---
 
-## 🔄 Agent Workflow
+## 🔄 Sprint Workflow (10 Minutes)
 
+### Phase 1: Planning (2 min)
 ```
-┌─────────────┐
-│   PM Agent  │── Design specs ──┐
-└─────────────┘                  │
-                                 ▼
-┌─────────────┐          ┌─────────────┐
-│  BA Agent   │◄─────────│ Requirements│
-└─────────────┘          └─────────────┘
-         │
-         │ User stories
-         ▼
-┌─────────────┐          ┌─────────────┐
-│Scrum Master │─────────►│ Sprint Plan │
-└─────────────┘          └─────────────┘
-                                │
-                                │ Assign
-                                ▼
-┌─────────────┐          ┌─────────────┐
-│  Dev Agent  │─────────►│    Code     │
-└─────────────┘          └─────────────┘
-                                │
-                                │ Complete
-                                ▼
-┌─────────────┐          ┌─────────────┐
-│   QA Agent  │◄─────────│    Test     │
-└─────────────┘          └─────────────┘
-         │
-         │ Pass/Fail
-         ▼
-┌─────────────┐
-│   Release   │
-└─────────────┘
+[0:00] Scrum Master: Sprint starts
+[0:30] BA: Presents user stories
+[1:00] PM: Confirms priorities
+[1:30] Dev: Confirms capacity
+[2:00] All: Ready to begin
+```
+
+### Phase 2: Development (5 min)
+```
+[2:00] Dev: Implementation begins
+[4:00] Tech Lead: Parallel review prep
+[5:00] QA: Test case preparation
+[7:00] Dev: Implementation complete
+```
+
+### Phase 3: Review (2 min)
+```
+[7:00] Tech Lead: Code review & approval
+[7:30] QA: Testing begins
+[8:30] QA: Testing complete
+[9:00] PM: Acceptance decision
+```
+
+### Phase 4: Retrospective + Report (1 min)
+```
+[9:00] All: Quick retro (what went well/poorly)
+[9:30] Scrum Master: Compile sprint report
+[10:00] Scrum Master: **Send report to Product Owner** ⭐
 ```
 
 ---
 
-## 📋 Agent Communication Protocol
+## 📋 Sprint Report Template (To Product Owner)
 
-### Message Format
-```
-[AGENT:<role>] <message>
-[PRIORITY:<low|medium|high|critical>]
-[CONTEXT:<sprint-id|story-id|bug-id>]
-```
+```markdown
+# 📊 Sprint {N} - End Report
 
-### Example Messages
-```
-[AGENT:scrum-master] Sprint 1 starts today. All agents please confirm readiness.
-[PRIORITY:high] [CONTEXT:sprint-1]
+**Sprint Goal:** {Goal}
+**Duration:** {Start} - {End} (10 min)
+**Status:** {Complete/Failed}
 
-[AGENT:dev] FEAT-001 implementation complete. Ready for QA.
-[PRIORITY:medium] [CONTEXT:feat-001]
+## ✅ Completed Stories
+| Story | Points | Status | Tech Lead Approval |
+|-------|--------|--------|-------------------|
+| {Story} | {pts} | ✅ Done | ✅ Approved |
 
-[AGENT:qa] FEAT-001 testing complete. 2 bugs found.
-[PRIORITY:high] [CONTEXT:feat-001]
+## 🚧 Incomplete Stories
+| Story | Points | Blocker | Next Sprint |
+|-------|--------|---------|-------------|
+| {Story} | {pts} | {Blocker} | ✅ Yes |
+
+## 🤖 Agent Status
+| Agent | Status | Notes |
+|-------|--------|-------|
+| PM | ✅ | {Notes} |
+| BA | ✅ | {Notes} |
+| Dev | ✅ | {Notes} |
+| Tech Lead | ✅ | {Review notes} |
+| QA | ✅ | {Test results} |
+| Scrum Master | ✅ | {Tracking notes} |
+
+## 📊 Metrics
+- **Velocity:** {X} points
+- **Build Status:** ✅ Pass / ❌ Fail
+- **Bugs Found:** {N}
+- **Tech Lead Reviews:** {N}
+
+## 🚨 Blockers
+- {Blocker 1 or "None"}
+
+## 💡 Retrospective
+- 🟢 Went well: {Item}
+- 🔴 Improve: {Item}
+- 💡 Action: {Item}
+
+## 📅 Next Sprint
+**Sprint {N+1}:** {Goal}
+**Start:** {Time}
+
+---
+*Report generated by Scrum Master Agent*
 ```
 
 ---
 
-## 🎯 Sprint Ceremony Automation
+## 🔔 Sprint End Notification
 
-### Daily Standup
-**Time:** 09:00 UTC daily  
-**Agent:** Scrum Master  
-**Action:** Poll each agent for status, compile report
+### GitHub Issue Comment (Auto-Posted)
+```
+## 📊 Sprint {N} Complete!
 
-### Sprint Planning
-**Trigger:** Sprint start  
-**Agent:** Scrum Master + All  
-**Action:** Review backlog, assign stories, estimate
+**Status:** ✅ Complete
+**Velocity:** {X} points
+**Build:** ✅ Pass
 
-### Sprint Review
-**Trigger:** Sprint end  
-**Agent:** Scrum Master + PM + Dev  
-**Action:** Demo completed work
+@andycky **Sprint report sent to you!**
 
-### Retrospective
-**Trigger:** Sprint end  
-**Agent:** Scrum Master + All  
-**Action:** Review what went well/poorly
-
----
-
-## 🔧 Configuration
-
-### Agent Settings
-```yaml
-agents:
-  pm-agent:
-    model: qwen3.5-plus
-    thinking: on
-    timeout: 300
-  ba-agent:
-    model: qwen3.5-plus
-    thinking: on
-    timeout: 300
-  scrum-master-agent:
-    model: qwen3.5-plus
-    thinking: off
-    timeout: 120
-  dev-agent:
-    model: qwen3.5-plus
-    thinking: on
-    timeout: 600
-  qa-agent:
-    model: qwen3.5-plus
-    thinking: on
-    timeout: 300
+View full report: [Link to Sprint Issue]
 ```
 
-### Reminders
-- Daily standup: 09:00 UTC
-- Sprint end reminder: 2 days before
-- Code review reminder: 24h after PR
+### Optional: Direct Notification
+If configured, Scrum Master can also send:
+- Email notification
+- Discord/Slack message
+- GitHub issue mention
 
 ---
 
-## 📊 Agent Metrics
+## 🎯 Definition of Done (Enhanced with Tech Lead)
+
+- [ ] Code implemented (Dev)
+- [ ] **Tech Lead review & approval** ⭐
+- [ ] **Failure cases documented** ⭐
+- [ ] Code committed to GitHub
+- [ ] CI build passes
+- [ ] QA verification complete
+- [ ] PM acceptance
+- [ ] Sprint retrospective done
+- [ ] **Sprint report sent to Product Owner** ⭐
+
+---
+
+## 📊 Quality Gates (Tech Lead)
+
+### Code Review Checklist
+- [ ] Code follows Flutter best practices
+- [ ] No hardcoded values (use config)
+- [ ] Error handling implemented
+- [ ] Logging appropriate (debug vs prod)
+- [ ] Performance considerations addressed
+- [ ] Security reviewed (URLs, permissions)
+- [ ] Test coverage adequate
+
+### CI/CD Failure Troubleshooting
+- [ ] Build logs reviewed
+- [ ] Dependency issues identified
+- [ ] Platform-specific issues documented
+- [ ] Fix implemented or workaround provided
+
+---
+
+## 🚨 Escalation Protocol
+
+### Level 1: Dev Agent Blocked
+```
+Dev → Tech Lead (immediate)
+Tech Lead → Troubleshoot (2 min)
+Tech Lead → Solution or workaround
+```
+
+### Level 2: Tech Lead Cannot Resolve
+```
+Tech Lead → Scrum Master (blocker flag)
+Scrum Master → Move story to next sprint
+Scrum Master → Notify Product Owner in report
+```
+
+### Level 3: Critical Production Issue
+```
+Any Agent → Scrum Master (urgent)
+Scrum Master → Hotfix sprint (immediate)
+Tech Lead → Lead hotfix implementation
+Scrum Master → **Immediate report to Product Owner**
+```
+
+---
+
+## 📈 Sprint Metrics (Reported to You)
 
 | Metric | Target | Tracking |
 |--------|--------|----------|
-| Response Time | < 5 min | Scrum Master |
-| Task Completion | 100% sprint goals | Scrum Master |
-| Bug Detection Rate | > 90% | QA Agent |
-| Code Quality | > 80% analysis pass | Dev Agent |
+| Sprint Duration | 10 min | Scrum Master |
+| Velocity | 5 pts/sprint | Scrum Master |
+| Tech Lead Review Time | < 2 min | Tech Lead |
+| Code Quality | 100% reviewed | Tech Lead |
+| Build Success Rate | 100% | CI/CD |
+| Bug Detection Rate | > 90% | QA |
+| Sprint Completion | 100% | Scrum Master |
 
 ---
 
-## 🚀 Getting Started
+## 🎯 Sprint 1-10 Plan (6-Agent Team)
 
-1. **Initialize agents:** Each agent reads this file
-2. **Sprint 0 kickoff:** Scrum Master initiates
-3. **Begin workflow:** PM → BA → Dev → QA → Release
+| Sprint | Goal | Dev | Tech Lead | QA | Duration |
+|--------|------|-----|-----------|-----|----------|
+| **1** | Project Setup | ✅ | ✅ | ✅ | 10 min |
+| **2** | Core WebView | ✅ | ✅ | ✅ | 10 min |
+| **3** | Environment Config | ✅ | ✅ | ✅ | 10 min |
+| **4** | Error Handling | ✅ | ✅ | ✅ | 10 min |
+| **5** | Navigation Controls | ✅ | ✅ | ✅ | 10 min |
+| **6** | External Links | ✅ | ✅ | ✅ | 10 min |
+| **7** | Polish & UI | ✅ | ✅ | ✅ | 10 min |
+| **8** | CI/CD Setup | ✅ | ✅ | ✅ | 10 min |
+| **9** | Testing & Bug Fixes | ✅ | ✅ | ✅ | 10 min |
+| **10** | Release | ✅ | ✅ | ✅ | 10 min |
+
+**Total:** 100 minutes to full delivery
+
+---
+
+## 📞 Communication Flow
+
+```
+Product Owner (You)
+       ↑
+       │ Sprint End Reports (every 10 min)
+       │
+Scrum Master Agent
+       │
+       ├─→ PM Agent (Design decisions)
+       ├─→ BA Agent (Requirements)
+       ├─→ Tech Lead Agent (Reviews, troubleshooting)
+       │        ↑
+       │        │ Code review & approval
+       │        │
+       ├─→ Dev Agent (Implementation)
+       └─→ QA Agent (Testing - after Tech Lead approval)
+```
 
 ---
 
 *Created: 2026-03-16*
-*Version: 1.0*
-*Team: Multi-AI Scrum Team*
+*Team Size: 6 AI Agents*
+*Sprint Duration: 10 minutes*
+*Reporting: Every sprint end to Product Owner*

@@ -2,7 +2,7 @@
 /// URLs are hardcoded per flavor - no .env files needed
 class Environment {
   // These are set at compile time via build flavors
-  static const String _baseUrl = String.fromEnvironment('BASE_URL', defaultValue: 'https://www.doubao.com/');
+  static const String _baseUrl = String.fromEnvironment('BASE_URL', defaultValue: 'https://www.google.com/');
   static const String _envName = String.fromEnvironment('ENVIRONMENT', defaultValue: 'PROD');
   static const bool _debugMode = bool.fromEnvironment('ENABLE_DEBUG_MODE', defaultValue: false);
   static const bool _logging = bool.fromEnvironment('ENABLE_LOGGING', defaultValue: false);

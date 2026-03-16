@@ -78,15 +78,9 @@ class _WebViewScreenState extends State<WebViewScreen> {
       appBar: AppBar(
         leading: Padding(
           padding: const EdgeInsets.all(8.0),
-          child: ClipOval(
-            child: Container(
-              color: Colors.blue,
-              child: const Icon(
-                Icons.rocket_launch,
-                color: Colors.white,
-                size: 24,
-              ),
-            ),
+          child: Image.asset(
+            'assets/ic_launcher.png',
+            fit: BoxFit.contain,
           ),
         ),
         title: const Text('Cosie'),

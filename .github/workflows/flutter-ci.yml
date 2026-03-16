@@ -73,7 +73,21 @@ jobs:
             Automated release from GitHub Actions
             Build: ${{ github.sha }}
             Flavor: ${{ github.event.inputs.flavor || 'prod' }}
+            Appetize Preview: ${{ steps.appetize.outputs.appetize_url || 'N/A' }}
           files: build/app/outputs/flutter-apk/app-${{ github.event.inputs.flavor || 'prod' }}-release.apk
           token: ${{ secrets.GITHUB_TOKEN }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          
+      - name: Upload to Appetize.io
+        id: appetize
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: appetizeio/action@v1
+        with:
+          token: ${{ secrets.APPETIZE_TOKEN }}
+          path: build/app/outputs/flutter-apk/app-${{ github.event.inputs.flavor || 'prod' }}-release.apk
+          platform: android
+          note: |
+            Build #${{ github.run_number }}
+            Commit: ${{ github.sha }}
+            Flavor: ${{ github.event.inputs.flavor || 'prod' }}

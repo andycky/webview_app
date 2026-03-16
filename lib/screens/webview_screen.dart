@@ -76,6 +76,19 @@ class _WebViewScreenState extends State<WebViewScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: ClipOval(
+            child: Container(
+              color: Colors.blue,
+              child: const Icon(
+                Icons.rocket_launch,
+                color: Colors.white,
+                size: 24,
+              ),
+            ),
+          ),
+        ),
         title: const Text('Cosie'),
         backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         actions: [
